@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+<!DOCTYPE html>
+{% load static %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/styles.css' %}">
+{% endblock %}
+{% block content %}
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalles del Paciente</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    <h1>Detalles de {{ paciente.nombre }}</h1>
+
+    <p><strong>Nombre:</strong> {{ paciente.nombre }}</p>
+    <p><strong>Diagnóstico:</strong> {{ paciente.diagnostico }}</p>
+    <p><strong>Edad:</strong> {{ paciente.edad }}</p>
+    <p><strong>Unidad:</strong> {{ paciente.cama.unidad.nombre }}</p>
+    <p><strong>Cama:</strong> {{ paciente.cama.numero }}</p>
+    <p><strong>Fecha de Ingreso:</strong> {{ paciente.fecha_ingreso }}</p>
+    <p><strong>Ficha:</strong> {{ paciente.ficha }}</p>
+    <p><strong>Rut:</strong> {{ paciente.rut }}</p>
+    <p><strong>Fecha de Nacimiento:</strong> {{ paciente.fecha_nacimiento }}</p>
+    <p><strong>Teléfono:</strong> {{ paciente.fono }}</p>
+    <p><strong>Dirección:</strong> {{ paciente.domicilio }}</p>
+    <p><strong>Fecha de Egreso:</strong> {{ paciente.fecha_egreso }}</p>
+    <p><strong>Peso:</strong> {{ paciente.peso }}</p>
+    
+
+    <a href="{% url 'lista_camas' %}">Volver a la lista de camas</a>
+
+    <h2>Evoluciones</h2>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Guardar evolución</button>
+    </form>
+    
+    <hr>
+    
+    <ul>
+        {% for evo in evoluciones %}
+            <li>
+                <strong>{{ evo.fecha|date:"d/m/Y H:i" }} - {{ evo.autor }}</strong><br>
+                {{ evo.contenido|linebreaks }}
+            </li>
+        {% empty %}
+            <p>No hay evoluciones aún.</p>
+        {% endfor %}
+    </ul>
+
+
+</body>
+
+
+
+{% endblock %}
+</html>

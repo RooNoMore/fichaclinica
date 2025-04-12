@@ -1,0 +1,47 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Mi Proyecto Django{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/footer.css' %}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+    <!-- Header común con el botón de Login -->
+    <header>
+        <nav class="navbar">
+            <div class="nav-left">
+                <a href="{% url 'inicio' %}">Inicio</a>
+                <a href="{% url 'admin:index' %}">Admin</a>
+            </div>
+    
+            <div class="nav-right">
+                {% if user.is_authenticated %}
+                    <span>Bienvenido, <strong>{{ user.username }}</strong></span>
+                    <form method="post" action="{% url 'logout' %}" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit">Cerrar sesión</button>
+                    </form>
+                {% else %}
+                    <a href="{% url 'login' %}">Iniciar sesión</a>
+                {% endif %}
+            </div>
+        </nav>
+    </header>
+    <!-- Contenido principal de cada página -->
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- Footer común -->
+    <footer>
+        <p>&copy; 2025 Mi Proyecto Django. Todos los derechos reservados.</p>
+    </footer>
+
+</body>
+</html>

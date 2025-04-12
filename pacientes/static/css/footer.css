@@ -1,0 +1,31 @@
+header {
+    background-color: #198191;
+    color: #ffffff;
+    padding: 10px 20px;
+    font: bold 16px Arial, sans-serif;
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.nav-left a,
+.nav-right a,
+.nav-right button {
+    color: #000;
+    text-decoration: none;
+    background-color: #fff;
+    padding: 6px 12px;
+    margin-right: 10px;
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.nav-right span {
+    margin-right: 10px;
+}

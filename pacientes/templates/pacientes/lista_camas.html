@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+<!DOCTYPE html>
+{% load static %}
+<html lang="es">
+    {% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+{% endblock %}    
+{% block content %}
+    <h1>Camas Disponibles</h1>
+
+    {% for unidad in unidades %}
+        <h2>{{ unidad.nombre }}</h2>
+        {% if unidad.camas.all %}
+            <ul>
+                {% for cama in unidad.camas.all %}
+                    <li>
+                        Cama {{ cama.numero }} - 
+                        {% with paciente=pacientes_por_cama|dictkey:cama.id %}
+                            {% if paciente %}
+                                Ocupada por <a href="{% url 'detalle_paciente' paciente.id %}">{{ paciente.nombre }}</a> ({{ paciente.diagnostico }})
+                            {% else %}
+                                Disponible
+                            {% endif %}
+                        {% endwith %}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No hay camas disponibles en esta unidad.</p>
+        {% endif %}
+    {% endfor %}
+{% endblock %}
+<footer>
+    <p>&copy; 2025 Mi Proyecto Django. Todos los derechos reservados.</p>
+</footer>
+</html>
+

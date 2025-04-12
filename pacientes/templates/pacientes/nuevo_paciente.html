@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+<!DOCTYPE html>
+{% load static %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/styles.css' %}">
+{% endblock %}
+
+{% block content %}
+<body>
+
+    <h1>Registrar nuevo paciente</h1>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Guardar</button>
+    </form>
+
+    <p><a href="{% url 'lista_camas' %}">Volver a camas</a></p>
+</body>
+{% endblock %}
+</html>

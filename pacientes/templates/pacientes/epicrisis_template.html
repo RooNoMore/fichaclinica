@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Epicrisis</title>
+    <style>
+        body {
+            font-family: "Calibri", serif;
+            margin: 40px;
+            font-size: 12pt;
+        }
+        h1 {
+            text-align: center;
+            text-decoration: underline;
+            margin-bottom: 30px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 10px;
+        }
+        td {
+            padding: 6px;
+            vertical-align: top;
+        }
+        .label {
+            font-weight: bold;
+            width: 25%;
+            white-space: nowrap;
+        }
+        .section-title {
+            font-weight: bold;
+            font-size: 14pt;
+            margin-bottom: 10px;
+        }
+        .box {
+            border: 1px solid #000;
+            padding: 15px;
+            margin-top: 20px;
+            page-break-inside: avoid;
+        }
+        .firma {
+            margin-top: 60px;
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <img src="{{ logo_url }}" alt="Logo" style="height: 80px;">
+        <h1 style="flex-grow: 1; text-align: center;">Epicrisis</h1>
+    </div>
+    
+    <div class="box">
+        <table>
+            <tr>
+                <td class="label">Nombre:</td>
+                <td>{{ paciente.nombre }}</td>
+                <td class="label">Ficha:</td>
+                <td>{{ paciente.ficha }}</td>
+            </tr>
+            <tr>
+                <td class="label">RUT:</td>
+                <td>{{ rut }}</td>
+                <td class="label">Fecha de Nacimiento:</td>
+                <td>{{ FN }}</td>
+            </tr>
+            <tr>
+                <td class="label">Edad:</td>
+                <td>{{ paciente.edad }}</td>
+                <td class="label">Fonos:</td>
+                <td>{{ fono }}</td>
+            </tr>
+            <tr>
+                <td class="label">Domicilio:</td>
+                <td colspan="3">{{ dom }}</td>
+            </tr>
+            <tr>
+                <td class="label">Fecha de Ingreso:</td>
+                <td>{{ paciente.fecha_ingreso }}</td>
+                <td class="label">Fecha de Egreso:</td>
+                <td>{{ FE }}</td>
+            </tr>
+            <tr>
+                <td class="label">Previsión:</td>
+                <td colspan="3">FONASA</td>
+            </tr>
+        </table>
+    </div>
+    
+    <div class="box">
+        <table>
+            <tr>
+                <td class="label">Diagnóstico ingreso principal:</td>
+                <td>{{ paciente.diagnostico }}</td>
+            </tr>
+            <tr>
+                <td class="label">Diagnósticos secundarios:</td>
+                <td>{{ AM }}</td>
+            </tr>
+        </table>
+    </div>
+    
+    <div class="box">
+        <div class="section-title">Comentario evolución clínica</div>
+        <p>
+            AM: {{ AM }}<br>
+            AQx: {{ AQx }}<br>
+            Alergias: {{ Alergias }}<br>
+            Medicamentos: {{ Fcos }}<br><br>
+            {{ ingreso }}<br>
+            {{ LabIngreso }}<br>
+            {{ PlanIngreso }}<br>
+            {{ intraop }}<br>
+            {{ evolucion }}
+        </p>
+    </div>
+    
+    <div class="box">
+        <table>
+            <tr>
+                <td class="label">Peso:</td>
+                <td>{{ peso }} Kg</td>
+                <td class="label">Unidad de Egreso:</td>
+                <td>{{ paciente.unidad.nombre }}</td>
+            </tr>
+            <tr>
+                <td class="label">Condición al alta:</td>
+                <td>Mejorado</td>
+                <td class="label">Exámenes Realizados:</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td class="label">Exámenes Pendientes:</td>
+                <td colspan="3"></td>
+            </tr>
+        </table>
+    </div>
+    
+    <div class="box">
+        <div class="section-title">Diagnósticos de Egreso</div>
+        <p>{{ dgegreso }}</p>
+    </div>
+    
+    <div class="box">
+        <div class="section-title">Indicaciones al Alta</div>
+        <p>{{ indicacionesSegunDgPH }}</p>
+    </div>
+    
+    <div class="firma">
+        <p>Santiago, {{ FE }}</p>
+        <p>{{ mdtte }}</p>
+        <p>Hospital Clínico San Borja Arriarán</p>
+    </div>
+</body>
+</html>    

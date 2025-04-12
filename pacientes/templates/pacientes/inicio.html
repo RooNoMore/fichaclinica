@@ -1,0 +1,22 @@
+<!-- pacientes/templates/pacientes/inicio.html -->
+{% extends 'base.html' %}
+<!DOCTYPE html>
+{% load static %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/styles.css' %}">
+{% endblock %}
+
+{% block content %}
+<body>
+    <h1>Panel Principal</h1>
+
+    <nav>
+        <ul>
+            <li><a href="{% url 'lista_camas' %}">🛏️ Lista de Camas</a></li>
+            <li><a href="{% url 'nuevo_paciente' %}">➕ Nuevo Paciente</a></li>
+            <!-- Aquí puedes ir agregando más accesos -->
+        </ul>
+    </nav>
+</body>
+{% endblock %}
+</html>
