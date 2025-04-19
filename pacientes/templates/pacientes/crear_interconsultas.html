@@ -1,0 +1,6 @@
+<h3>Nueva Interconsulta para {{ paciente.nombre }}</h3>
+<form method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Solicitar Interconsulta</button>
+</form>

@@ -1,63 +1,119 @@
 {% extends 'base.html' %}
-<!DOCTYPE html>
 {% load static %}
+
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 {% endblock %}
+
 {% block content %}
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detalles del Paciente</title>
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
-</head>
-<body>
-    <h1>Detalles de {{ paciente.nombre }}</h1>
+<h2>{{ paciente.nombre }}</h2>
+<div class="card bg-light mb-3 p-3 shadow-sm">
+    <div class="row">
+        <div class="col-md-4">
+            <strong>RUT:</strong> {{ paciente.rut }}<br>
+            <strong>Edad:</strong> {{ paciente.edad }}
+        </div>
+        <div class="col-md-4">
+            <strong>Ficha:</strong> {{ paciente.ficha }}<br>
+            <strong>Fecha ingreso:</strong> {{ paciente.fecha_ingreso|date:"d/m/Y" }}
+        </div>
+        <div class="col-md-4">
+            <strong>Unidad:</strong> {{ paciente.unidad }}<br>
+            <strong>Cama:</strong> {{ paciente.cama.numero|default:"Sin asignar" }}
+        </div>
+    </div>
+</div>
 
-    <p><strong>Nombre:</strong> {{ paciente.nombre }}</p>
-    <p><strong>Diagnóstico:</strong> {{ paciente.diagnostico }}</p>
-    <p><strong>Edad:</strong> {{ paciente.edad }}</p>
-    <p><strong>Unidad:</strong> {{ paciente.cama.unidad.nombre }}</p>
-    <p><strong>Cama:</strong> {{ paciente.cama.numero }}</p>
-    <p><strong>Fecha de Ingreso:</strong> {{ paciente.fecha_ingreso }}</p>
-    <p><strong>Ficha:</strong> {{ paciente.ficha }}</p>
-    <p><strong>Rut:</strong> {{ paciente.rut }}</p>
-    <p><strong>Fecha de Nacimiento:</strong> {{ paciente.fecha_nacimiento }}</p>
-    <p><strong>Teléfono:</strong> {{ paciente.fono }}</p>
-    <p><strong>Dirección:</strong> {{ paciente.domicilio }}</p>
-    <p><strong>Fecha de Egreso:</strong> {{ paciente.fecha_egreso }}</p>
-    <p><strong>Peso:</strong> {{ paciente.peso }}</p>
-    
 
-    <a href="{% url 'lista_camas' %}">Volver a la lista de camas</a>
+<hr>
 
-    <h2>Evoluciones</h2>
-
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Guardar evolución</button>
-    </form>
-    
-    <hr>
-    
-    <ul>
-        {% for evo in evoluciones %}
-            <li>
-                <strong>{{ evo.fecha|date:"d/m/Y H:i" }} - {{ evo.autor }}</strong><br>
-                {{ evo.contenido|linebreaks }}
-            </li>
-        {% empty %}
-            <p>No hay evoluciones aún.</p>
-        {% endfor %}
+<div>
+    <ul class="nav nav-tabs" id="miTab" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active" id="evoluciones-tab" data-bs-toggle="tab" href="#evoluciones">Todas las Evoluciones</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="interconsulta-tab" data-bs-toggle="tab" href="#interconsulta">Interconsultas</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="examenes-tab" data-bs-toggle="tab" href="#examenes">Exámenes</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="receta-tab" data-bs-toggle="tab" href="#receta">Recetas</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="epicrisis-tab" data-bs-toggle="tab" href="#epicrisis">Epicrisis</a>
+        </li>
     </ul>
 
+    <div class="tab-content mt-3" id="miTabContent">
 
-</body>
+        <!-- Evoluciones -->
+        <div class="tab-pane fade show active" id="evoluciones">
+            <!-- Formulario para nueva evolución -->
+            <form method="POST">
+             {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit">Agregar Evolución</button>
+            </form>
+            {% for evo in evoluciones %}
+                <p><strong>{{ evo.fecha|date:"d/m/Y H:i" }}</strong> por {{ evo.autor }}:</p>
+                <p>{{ evo.contenido|linebreaks }}</p>
+                {% if evo.plan_indicaciones %}
+                    <p><strong>Plan/Indicaciones:</strong><br>{{ evo.plan_indicaciones|linebreaks }}</p>
+                {% endif %}
+                <hr>
+            {% empty %}
+                <p>No hay evoluciones aún.</p>
+            {% endfor %}
+        </div>
 
+        <!-- Interconsultas -->
+        <div class="tab-pane fade" id="epicrisis" role="tabpanel">
+    <h4 class="mt-3">Crear nueva Epicrisis</h4>
+    <form method="POST" action="{% url 'crear_epicrisis' paciente.id %}">
+        {% csrf_token %}
+        <form method="POST" action="{% url 'crear_epicrisis' paciente.id %}">
+            {% csrf_token %}
+            <div class="row">
+                <div class="col-md-6 mb-2">
+                    <label>Diagnóstico de egreso</label>
+                    <input type="text" name="dgegreso" class="form-control" required>
+                </div>
+            </div>
+            <div class="mb-2">
+                <label>Comentario evolución clínica</label>
+                <textarea name="evolucion" class="form-control" rows="3"></textarea>
+            </div>
+            <div class="mb-2">
+                <label>Indicaciones al alta</label>
+                <textarea name="indicacionesSegunDgPH" class="form-control" rows="2"></textarea>
+            </div>
+    
+        <button type="submit" class="btn btn-success mt-2">Generar Epicrisis (PDF)</button>
+    </form>
 
+    <hr class="my-4">
 
+    <h5 class="mb-3">Epicrisis anteriores</h5>
+
+    {% if paciente.epicrisis.all %}
+        {% for e in paciente.epicrisis.all %}
+            <div class="card mb-2">
+                <div class="card-body">
+                    <p><strong>Fecha:</strong> {{ e.fecha|date:"d/m/Y H:i" }}</p>
+                    <p><strong>Diagnóstico de egreso:</strong> {{ e.diagnostico_egreso }}</p>
+                    <p><strong>Indicaciones:</strong> {{ e.indicaciones_alta }}</p>
+                    <p><strong>Médico:</strong> {{ e.autor }}</p>
+                    <a href="{% url 'exportar_epicrisis_pdf' e.id %}" class="btn btn-outline-secondary btn-sm">Descargar PDF</a>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>No hay epicrisis registradas para este paciente.</p>
+    {% endif %}
+</div>
+        
+    </div>
+</div>
 {% endblock %}
-</html>

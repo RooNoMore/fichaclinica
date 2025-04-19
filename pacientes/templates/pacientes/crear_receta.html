@@ -1,0 +1,6 @@
+<h3>Crear Receta Médica para {{ paciente.nombre }}</h3>
+<form method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Crear Receta</button>
+</form>

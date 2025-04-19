@@ -15,4 +15,4 @@ class CrearUsuarioForm(forms.ModelForm):
 class PerfilUsuarioForm(forms.ModelForm):
     class Meta:
         model = PerfilUsuario
-        fields = ['especialidad', 'telefono']        
+        fields = ['servicio', 'telefono']        

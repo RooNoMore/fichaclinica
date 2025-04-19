@@ -5,152 +5,162 @@
     <title>Epicrisis</title>
     <style>
         body {
-            font-family: "Calibri", serif;
-            margin: 40px;
-            font-size: 12pt;
+            font-family: "Arial", sans-serif;
+            font-size: 10pt;
+            margin: 30px;
         }
         h1 {
             text-align: center;
+            font-size: 14pt;
             text-decoration: underline;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
         }
         td {
-            padding: 6px;
             vertical-align: top;
+            padding: 4px 6px;
         }
         .label {
             font-weight: bold;
-            width: 25%;
+            width: 30%;
             white-space: nowrap;
         }
         .section-title {
             font-weight: bold;
-            font-size: 14pt;
-            margin-bottom: 10px;
+            font-size: 11pt;
+            background-color: #f0f0f0;
+            padding: 4px;
+            border: 1px solid #ccc;
         }
         .box {
             border: 1px solid #000;
-            padding: 15px;
-            margin-top: 20px;
-            page-break-inside: avoid;
+            margin-top: 15px;
+            padding: 0;
         }
         .firma {
-            margin-top: 60px;
+            margin-top: 40px;
             text-align: right;
+        }
+        .logo-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .logo-container img {
+            height: 70px;
         }
     </style>
 </head>
 <body>
-    <div style="display: flex; justify-content: space-between; align-items: center;">
-        <img src="{{ logo_url }}" alt="Logo" style="height: 80px;">
-        <h1 style="flex-grow: 1; text-align: center;">Epicrisis</h1>
+
+    <div class="logo-container">
+        <img src="{{ logo_url }}" alt="Logo">
+        <h1>EPICRISIS</h1>
+        <div style="width: 70px;"></div>
     </div>
-    
+
+    <!-- Datos del paciente -->
     <div class="box">
         <table>
             <tr>
-                <td class="label">Nombre:</td>
-                <td>{{ paciente.nombre }}</td>
-                <td class="label">Ficha:</td>
-                <td>{{ paciente.ficha }}</td>
-            </tr>
-            <tr>
-                <td class="label">RUT:</td>
-                <td>{{ rut }}</td>
-                <td class="label">Fecha de Nacimiento:</td>
-                <td>{{ FN }}</td>
-            </tr>
-            <tr>
-                <td class="label">Edad:</td>
-                <td>{{ paciente.edad }}</td>
-                <td class="label">Fonos:</td>
-                <td>{{ fono }}</td>
-            </tr>
-            <tr>
-                <td class="label">Domicilio:</td>
-                <td colspan="3">{{ dom }}</td>
-            </tr>
-            <tr>
-                <td class="label">Fecha de Ingreso:</td>
-                <td>{{ paciente.fecha_ingreso }}</td>
-                <td class="label">Fecha de Egreso:</td>
-                <td>{{ FE }}</td>
-            </tr>
-            <tr>
-                <td class="label">Previsión:</td>
-                <td colspan="3">FONASA</td>
+                <!-- Columna 1 -->
+                <td style="width: 33%; vertical-align: top;">
+                    <p><strong>NOMBRE:</strong> {{ paciente.nombre }}</p>
+                    <p><strong>F. NACIMIENTO:</strong> {{ FN }}</p>
+                    <p><strong>FECHA INGRESO:</strong> {{ paciente.fecha_ingreso }}</p>
+                    <p><strong>FECHA EGRESO:</strong> {{ FE }}</p>
+                    <p><strong>DOMICILIO:</strong> {{ dom }}</p>
+                    <p><strong>PREVISIÓN:</strong> <strong style="font-weight: bold;">FONASA</strong></p>
+                </td>
+
+                <!-- Columna 2 -->
+                <td style="width: 33%; vertical-align: top;">
+                    <p><strong>FICHA:</strong> {{ ficha }}</p>
+                    <p><strong>EDAD:</strong> {{ paciente.edad }}</p>
+                </td>
+
+                <!-- Columna 3 -->
+                <td style="width: 33%; vertical-align: top;">
+                    <p><strong>RUT:</strong> {{ rut }}</p>
+                    <p><strong>FONOS:</strong> {{ fono }}</p>
+                </td>
             </tr>
         </table>
     </div>
-    
+
+    <!-- Diagnóstico -->
     <div class="box">
         <table>
+            <tr><td colspan="4" class="section-title">Diagnóstico</td></tr>
             <tr>
                 <td class="label">Diagnóstico ingreso principal:</td>
-                <td>{{ paciente.diagnostico }}</td>
+                <td colspan="3">{{ diagnostico }}</td>
             </tr>
             <tr>
                 <td class="label">Diagnósticos secundarios:</td>
-                <td>{{ AM }}</td>
+                <td colspan="3">{{ AM }}</td>
             </tr>
         </table>
     </div>
-    
+
+    <!-- Evolución clínica -->
     <div class="box">
-        <div class="section-title">Comentario evolución clínica</div>
-        <p>
-            AM: {{ AM }}<br>
-            AQx: {{ AQx }}<br>
-            Alergias: {{ Alergias }}<br>
-            Medicamentos: {{ Fcos }}<br><br>
-            {{ ingreso }}<br>
-            {{ LabIngreso }}<br>
-            {{ PlanIngreso }}<br>
-            {{ intraop }}<br>
+        <div class="section-title">Evolución clínica</div>
+        <p style="padding: 10px;">
+            <strong>Antecedentes Médicos:</strong> {{ AM }}.<br>
+            <strong>Antecedentes Quirúrgicos:</strong> {{ AQx }}.<br>
+            <strong>Alergias:</strong> {{ Alergias }}.<br>
+            <strong>Medicamentos:</strong> {{ Fcos }}.<br><br>
+            {{ ingreso }}<br><br>
+            {{ LabIngreso }}<br><br>
+            {{ PlanIngreso }}<br><br>
+            {{ intraop }}<br><br>
             {{ evolucion }}
         </p>
     </div>
-    
+
+    <!-- Datos de egreso -->
     <div class="box">
+        <div class="section-title">Datos de egreso</div>
         <table>
-            <tr>
-                <td class="label">Peso:</td>
-                <td>{{ peso }} Kg</td>
-                <td class="label">Unidad de Egreso:</td>
-                <td>{{ paciente.unidad.nombre }}</td>
+            <tr style="border-top: 1px solid #000;">
+                <td><strong>Peso:</strong> {{ peso }} Kg</td>
             </tr>
-            <tr>
-                <td class="label">Condición al alta:</td>
-                <td>Mejorado</td>
-                <td class="label">Exámenes Realizados:</td>
-                <td></td>
+            <tr style="border-top: 1px solid #000;">
+                <td><strong>Condición al alta:</strong> Mejorado</td>
             </tr>
-            <tr>
-                <td class="label">Exámenes Pendientes:</td>
-                <td colspan="3"></td>
+            <tr style="border-top: 1px solid #000;">
+                <td><strong>Exámenes realizados:</strong></td>
+            </tr>
+            <tr style="border-top: 1px solid #000;">
+                <td><strong>Exámenes pendientes:</strong></td>
             </tr>
         </table>
     </div>
-    
+
+    <!-- Diagnóstico de egreso -->
     <div class="box">
-        <div class="section-title">Diagnósticos de Egreso</div>
-        <p>{{ dgegreso }}</p>
+        <div class="section-title">Diagnóstico de egreso</div>
+        <p style="padding: 10px;">{{ dgegreso }}</p>
     </div>
-    
+
+    <!-- Indicaciones -->
     <div class="box">
-        <div class="section-title">Indicaciones al Alta</div>
-        <p>{{ indicacionesSegunDgPH }}</p>
+        <div class="section-title">Indicaciones al alta</div>
+        <p style="padding: 10px;">{{ indicacionesSegunDgPH }}</p>
     </div>
-    
+
+    <!-- Firma -->
     <div class="firma">
         <p>Santiago, {{ FE }}</p>
         <p>{{ mdtte }}</p>
         <p>Hospital Clínico San Borja Arriarán</p>
     </div>
+
 </body>
-</html>    
+</html>

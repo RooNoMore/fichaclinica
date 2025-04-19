@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Interconsultas Recibidas – {{ servicio_usuario }}</h1>
+
+<ul class="nav nav-tabs" id="interconsultaTabs" role="tablist">
+  <li class="nav-item" role="presentation">
+    <button class="nav-link active" id="pendientes-tab" data-bs-toggle="tab" data-bs-target="#pendientes" type="button" role="tab">Pendientes</button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="respondidas-tab" data-bs-toggle="tab" data-bs-target="#respondidas" type="button" role="tab">Respondidas</button>
+  </li>
+</ul>
+
+<div class="tab-content mt-3" id="interconsultaTabsContent">
+
+  <!-- Tab: Pendientes -->
+  <div class="tab-pane fade show active" id="pendientes" role="tabpanel">
+    {% if interconsultas_pendientes %}
+      {% for inter in interconsultas_pendientes %}
+        <div class="card mb-3 shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title">{{ inter.paciente }}</h5>
+            <p><strong>Motivo:</strong> {{ inter.motivo }}</p>
+            <p><strong>Solicitado por:</strong> {{ inter.solicitante }}</p>
+            <p><strong>Fecha:</strong> {{ inter.fecha_solicitud|date:"d/m/Y H:i" }}</p>
+            <a href="{% url 'responder_interconsulta' inter.id %}" class="btn btn-primary btn-sm">Responder</a>
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <div class="alert alert-info">No hay interconsultas pendientes.</div>
+    {% endif %}
+  </div>
+
+  <!-- Tab: Respondidas -->
+  <div class="tab-pane fade" id="respondidas" role="tabpanel">
+    {% if interconsultas_respondidas %}
+      {% for inter in interconsultas_respondidas %}
+        <div class="card mb-3 border-success shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title">{{ inter.paciente }}</h5>
+            <p><strong>Motivo:</strong> {{ inter.motivo }}</p>
+            <p><strong>Respuesta:</strong> {{ inter.respuesta }}</p>
+            <p><strong>Respondido el:</strong> {{ inter.fecha_respuesta|date:"d/m/Y H:i" }}</p>
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <div class="alert alert-info">No hay interconsultas respondidas.</div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

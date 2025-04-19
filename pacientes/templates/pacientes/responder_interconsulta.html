@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Responder Interconsulta</h2>
+
+<p><strong>Paciente:</strong> {{ interconsulta.paciente }}</p>
+<p><strong>Servicio destino:</strong> {{ interconsulta.servicio_destino }}</p>
+<p><strong>Motivo:</strong> {{ interconsulta.motivo }}</p>
+
+<form method="POST">
+    {% csrf_token %}
+    <label for="respuesta">Respuesta:</label><br>
+    <textarea name="respuesta" rows="5" cols="60" required></textarea><br><br>
+    <button type="submit" class="btn btn-success">Responder</button>
+</form>
+{% endblock %}

@@ -3,4 +3,6 @@ from .models import PerfilUsuario
 
 @admin.register(PerfilUsuario)
 class PerfilUsuarioAdmin(admin.ModelAdmin):
-    list_display = ('user', 'especialidad', 'telefono')
+    list_display = ('user', 'servicio', 'telefono')
+
+    

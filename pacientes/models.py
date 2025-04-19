@@ -2,6 +2,7 @@ from django.db import models
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from django.contrib.auth.models import User
+from administrador.models import PerfilUsuario
 
 
 
@@ -11,15 +12,6 @@ class Unidad(models.Model):
     def __str__(self):
         return self.nombre
 
-class Paciente(models.Model):
-    ficha = models.IntegerField(unique=True, null=True, blank=True)
-    nombre = models.CharField(max_length=100)
-    diagnostico = models.CharField(max_length=200)
-    cama = models.OneToOneField('Cama', on_delete=models.SET_NULL, null=True, blank=True)
-
-    def __str__(self):
-        return f'Ficha {self.ficha} - {self.nombre}'
-    
 class Paciente(models.Model):
     ficha = models.IntegerField(unique=True, null=True, blank=True)
     nombre = models.CharField(max_length=100)
@@ -58,7 +50,65 @@ class Evolucion(models.Model):
     paciente = models.ForeignKey('Paciente', on_delete=models.CASCADE, related_name='evoluciones')
     autor = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     contenido = models.TextField()
+    plan_indicaciones = models.TextField(blank=True, null=True)
     fecha = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f'{self.fecha.strftime("%d-%m-%Y %H:%M")} - {self.autor}'    
+        nombre_autor = f'{self.autor.first_name} {self.autor.last_name.split()[0]} - {self.autor.perfilusuario.cargo}' if self.autor else 'Autor desconocido'
+        return f'{self.fecha.strftime("%d-%m-%Y %H:%M")} - {nombre_autor}'
+
+# PARA LAS INTERCONSULTAS
+
+class Servicio(models.Model):
+    nombre = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.nombre
+
+class Interconsulta(models.Model):
+    paciente = models.ForeignKey('Paciente', on_delete=models.CASCADE, related_name='interconsultas')
+    solicitante = models.ForeignKey('administrador.PerfilUsuario', on_delete=models.PROTECT, related_name='interconsultas_realizadas')
+    fecha_solicitud = models.DateTimeField(auto_now_add=True)
+    servicio_destino = models.ForeignKey(Servicio, on_delete=models.PROTECT, related_name='interconsultas_recibidas')
+    motivo = models.TextField()
+    respuesta = models.TextField(blank=True, null=True)
+    atendido = models.BooleanField(default=False)
+    fecha_respuesta = models.DateTimeField(blank=True, null=True)
+
+    def __str__(self):
+        return f"Interconsulta a {self.servicio_destino} - {self.paciente.nombre} solicitada por {self.solicitante}"
+
+
+
+
+class SolicitudExamen(models.Model):
+    paciente = models.ForeignKey('Paciente', on_delete=models.CASCADE, related_name='solicitudes_examenes')
+    solicitante = models.ForeignKey(PerfilUsuario, on_delete=models.PROTECT, related_name='examenes_solicitados')
+    tipo_examen = models.CharField(max_length=100)
+    indicaciones = models.TextField(blank=True, null=True)
+    fecha_solicitud = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.tipo_examen} solicitado por {self.solicitante} para {self.paciente}"
+
+
+class Receta(models.Model):
+    paciente = models.ForeignKey('Paciente', on_delete=models.CASCADE, related_name='recetas')
+    medico = models.ForeignKey(PerfilUsuario, on_delete=models.PROTECT, related_name='recetas_emitidas')
+    medicamento = models.CharField(max_length=100)
+    dosis = models.CharField(max_length=100)
+    frecuencia = models.CharField(max_length=50)
+    duracion = models.CharField(max_length=50)
+    indicaciones_extra = models.TextField(blank=True, null=True)
+    fecha_receta = models.DateTimeField(auto_now_add=True)    
+
+
+class Epicrisis(models.Model):
+    paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE, related_name='epicrisis')
+    fecha = models.DateTimeField(auto_now_add=True)
+    diagnostico_egreso = models.TextField()
+    indicaciones_alta = models.TextField()
+    autor = models.ForeignKey(PerfilUsuario, on_delete=models.PROTECT)
+
+    def __str__(self):
+        return f"Epicrisis de {self.paciente.nombre} - {self.fecha.strftime('%d/%m/%Y')}"    

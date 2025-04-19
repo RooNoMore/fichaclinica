@@ -10,3 +10,11 @@ def dictkey(value, key):
     if isinstance(value, dict):
         return value.get(key, None)
     return None
+
+
+@register.filter
+def get_unidad_nombre(unidades, unidad_id):
+    for unidad in unidades:
+        if unidad.id == unidad_id:
+            return unidad.nombre
+    return 'Unidad no encontrada'    

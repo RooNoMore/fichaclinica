@@ -26,3 +26,27 @@ li {
 li:hover {
     background-color: #e0f0ff; /* Celeste aún más claro cuando se pasa el ratón */
 }
+
+.btn {
+    display: inline-block;
+    margin: 5px;
+    padding: 8px 15px;
+    background-color: #3498db;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+}
+
+.btn:hover {
+    background-color: #2980b9;
+}
+
+.btn-active {
+    display: inline-block;
+    margin: 5px;
+    padding: 8px 15px;
+    background-color: #27ae60;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+}

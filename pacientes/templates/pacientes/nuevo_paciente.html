@@ -1,22 +1,52 @@
 {% extends 'base.html' %}
-<!DOCTYPE html>
 {% load static %}
+
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 {% endblock %}
 
 {% block content %}
-<body>
+<h1>Registrar nuevo paciente</h1>
 
-    <h1>Registrar nuevo paciente</h1>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Guardar</button>
+</form>
 
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Guardar</button>
-    </form>
+<p><a href="{% url 'lista_camas' %}">Volver a camas</a></p>
 
-    <p><a href="{% url 'lista_camas' %}">Volver a camas</a></p>
-</body>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const unidadSelect = document.getElementById('id_unidad');
+    const camaSelect = document.getElementById('id_cama');
+
+    unidadSelect.addEventListener('change', function () {
+        const unidadId = this.value;
+        fetch(`/camas-disponibles/?unidad=${unidadId}`)
+            .then(response => response.json())
+            .then(data => {
+                camaSelect.innerHTML = '';
+                const defaultOption = document.createElement('option');
+                defaultOption.value = '';
+                defaultOption.text = '---------';
+                camaSelect.appendChild(defaultOption);
+
+                if (data.length === 0) {
+                    const option = document.createElement('option');
+                    option.text = 'No hay camas disponibles';
+                    option.disabled = true;
+                    camaSelect.appendChild(option);
+                }
+
+                data.forEach(cama => {
+                    const option = document.createElement('option');
+                    option.value = cama.id;
+                    option.text = cama.numero;
+                    camaSelect.appendChild(option);
+                });
+            });
+    });
+});
+</script>
 {% endblock %}
-</html>
