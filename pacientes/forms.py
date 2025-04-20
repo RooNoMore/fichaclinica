@@ -1,9 +1,13 @@
 # forms.py
 from django import forms
-from .models import Paciente, Cama, Unidad
-
+from .models import Paciente, Cama, Unidad, Evolucion, MedicamentoEpicrisis
 from django import forms
 from .models import Paciente, Unidad, Cama
+from django.forms import inlineformset_factory
+from .models import Epicrisis, MedicamentoEpicrisis
+
+
+
 
 class PacienteForm(forms.ModelForm):
     unidad = forms.ModelChoiceField(
@@ -39,6 +43,7 @@ class PacienteForm(forms.ModelForm):
             
 from django import forms
 from .models import Evolucion
+from django.forms import inlineformset_factory
 
 class EvolucionForm(forms.ModelForm):
     class Meta:
@@ -72,9 +77,30 @@ from .models import Epicrisis
 class EpicrisisForm(forms.ModelForm):
     class Meta:
         model = Epicrisis
-        fields = ['diagnostico_egreso', 'comentario_evolucion', 'indicaciones_alta']
+        fields = [
+            'diagnostico_egreso',
+            'comentario_evolucion',
+            'indicaciones_generales',
+            'indicaciones_controles',
+        ]
         widgets = {
-            'diagnostico_egreso': forms.Textarea(attrs={'rows': 3}),
+            'diagnostico_egreso': forms.Textarea(attrs={'rows': 1}),
             'comentario_evolucion': forms.Textarea(attrs={'rows': 3}),
-            'indicaciones_alta': forms.Textarea(attrs={'rows': 3}),
+            'indicaciones_generales': forms.Textarea(attrs={'rows': 2}),
+            'indicaciones_controles': forms.Textarea(attrs={'rows': 1}),
         }
+
+class MedicamentoEpicrisisForm(forms.ModelForm):
+    class Meta:
+        model = MedicamentoEpicrisis
+        fields = ['medicamento', 'frecuencia', 'duracion', 'via']
+
+
+
+MedicamentoFormSet = inlineformset_factory(
+    Epicrisis,
+    MedicamentoEpicrisis,
+    form=MedicamentoEpicrisisForm,
+    extra=1,
+    can_delete=True
+)        

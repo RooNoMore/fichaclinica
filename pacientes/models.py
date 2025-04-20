@@ -107,10 +107,33 @@ class Epicrisis(models.Model):
     paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE)
     diagnostico_egreso = models.TextField()
     comentario_evolucion = models.TextField()
-    indicaciones_alta = models.TextField()
+    indicaciones_generales = models.TextField(blank=True)
+    indicaciones_controles = models.TextField(blank=True)
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     finalizado = models.BooleanField(default=False)
     autor = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
-        return f'Epicrisis de {self.paciente} ({self.fecha_creacion.date()})'
+        return f"Epicrisis de {self.paciente.nombre} - {self.fecha_creacion.strftime('%d/%m/%Y')}"
+
+
+
+class Medicamento(models.Model):
+    nombre = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.nombre
+
+
+class MedicamentoEpicrisis(models.Model):
+    epicrisis = models.ForeignKey(Epicrisis, related_name='medicamentos_indicados', on_delete=models.CASCADE)
+    medicamento = models.ForeignKey(Medicamento, on_delete=models.PROTECT)
+    frecuencia = models.CharField(max_length=100)
+    duracion = models.CharField(max_length=100)
+    via = models.CharField(max_length=100)
+
+    def __str__(self):
+        return f"{self.medicamento.nombre} - {self.frecuencia}, {self.duracion}, {self.via}"
+
+
+        

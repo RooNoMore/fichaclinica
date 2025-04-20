@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Crear Epicrisis para {{ paciente.nombre }}</h2>
+
+<form method="post">
+    {% csrf_token %}
+
+    {{ form.as_p }}
+
+    <h4>Medicamentos Indicados</h4>
+    {{ formset.management_form }}  {# debe estar antes del for #}
+
+    <table>
+        <tbody>
+        {% for form in formset %}
+            <tr>
+                <td>{{ form.medicamento }}</td>
+                <td>{{ form.frecuencia }}</td>
+                <td>{{ form.duracion }}</td>
+                <td>{{ form.via }}</td>
+                <td>{{ form.DELETE }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <button type="submit" name="accion" value="borrador">Guardar Borrador</button>
+    <button type="submit" name="accion" value="finalizar">Finalizar y PDF</button>
+</form>
+
+{% endblock %}

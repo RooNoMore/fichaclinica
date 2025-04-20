@@ -10,7 +10,7 @@ from django.utils import timezone
 from django.utils.timezone import now
 from django.contrib import messages
 from .models import Paciente, Epicrisis
-from .forms import EpicrisisForm, EvolucionForm
+from .forms import EpicrisisForm, EvolucionForm, MedicamentoFormSet
 
 
 @login_required
@@ -179,29 +179,43 @@ from django.template.loader import render_to_string
 
 @login_required
 
+@login_required
 def crear_epicrisis(request, paciente_id):
     paciente = get_object_or_404(Paciente, id=paciente_id)
 
     if request.method == 'POST':
-        form = EpicrisisForm(request.POST)
-        if form.is_valid():
-            epicrisis = form.save(commit=False)
+        epicrisis_form = EpicrisisForm(request.POST)
+        formset = MedicamentoFormSet(request.POST)
+
+        if epicrisis_form.is_valid() and formset.is_valid():
+            epicrisis = epicrisis_form.save(commit=False)
             epicrisis.paciente = paciente
             epicrisis.autor = request.user
+            epicrisis.save()
+
+            # Asocia los medicamentos
+            formset.instance = epicrisis
+            formset.save()
 
             if request.POST.get('accion') == 'finalizar':
                 epicrisis.finalizado = True
+                epicrisis.paciente.fecha_egreso = now().date()
+                epicrisis.paciente.save()
                 epicrisis.save()
-                paciente.fecha_egreso = now().date()
-                paciente.save()
                 return redirect('exportar_epicrisis_pdf', epicrisis_id=epicrisis.id)
-            else:
-                epicrisis.finalizado = False
-                epicrisis.save()
-                return redirect('detalle_paciente', paciente_id=paciente.id)
 
-    # NO INTENTAMOS RENDERIZAR UNA PLANTILLA
-    return redirect('detalle_paciente', paciente_id=paciente.id)
+            return redirect('detalle_paciente', paciente_id=paciente.id)
+
+    else:
+        epicrisis_form = EpicrisisForm()
+        formset = MedicamentoFormSet(instance=Epicrisis())
+
+    return render(request, 'epicrisis/crear_epicrisis.html', {
+        'form': epicrisis_form,
+        'formset': formset,
+        'paciente': paciente,
+    })
+
 
 def editar_epicrisis(request, epicrisis_id):
     epicrisis = get_object_or_404(Epicrisis, id=epicrisis_id)
