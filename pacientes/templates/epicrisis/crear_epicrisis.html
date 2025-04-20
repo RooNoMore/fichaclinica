@@ -1,32 +1,51 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h2>Crear Epicrisis para {{ paciente.nombre }}</h2>
-
-<form method="post">
+  <h2>Crear Epicrisis para {{ paciente.nombre }}</h2>
+  <form method="post">
     {% csrf_token %}
 
     {{ form.as_p }}
 
     <h4>Medicamentos Indicados</h4>
-    {{ formset.management_form }}  {# debe estar antes del for #}
+    {{ formset.management_form }}        {# **IMPRESCINDIBLE** #}
 
-    <table>
-        <tbody>
-        {% for form in formset %}
-            <tr>
-                <td>{{ form.medicamento }}</td>
-                <td>{{ form.frecuencia }}</td>
-                <td>{{ form.duracion }}</td>
-                <td>{{ form.via }}</td>
-                <td>{{ form.DELETE }}</td>
-            </tr>
+    {% if formset.non_form_errors %}
+      <div class="alert alert-danger">
+        {{ formset.non_form_errors }}
+      </div>
+    {% endif %}
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Medicamento</th>
+          <th>Frecuencia</th>
+          <th>Duración</th>
+          <th>Vía</th>
+          <th>Eliminar</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for f in formset.forms %}
+          <tr>
+            <td>{{ f.medicamento }}</td>
+            <td>{{ f.frecuencia }}</td>
+            <td>{{ f.duracion }}</td>
+            <td>{{ f.via }}</td>
+            <td>
+              {% if f.DELETE %}{{ f.DELETE }}{% endif %}
+            </td>
+          </tr>
         {% endfor %}
-        </tbody>
+      </tbody>
     </table>
 
-    <button type="submit" name="accion" value="borrador">Guardar Borrador</button>
-    <button type="submit" name="accion" value="finalizar">Finalizar y PDF</button>
-</form>
-
+    <button type="submit" name="accion" value="borrador" class="btn btn-secondary">
+      Guardar Borrador
+    </button>
+    <button type="submit" name="accion" value="finalizar" class="btn btn-success">
+      Finalizar y Generar PDF
+    </button>
+  </form>
 {% endblock %}

@@ -177,7 +177,14 @@ def inicio(request):
 from weasyprint import HTML
 from django.template.loader import render_to_string
 
-@login_required
+
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
+from django.utils.timezone import now
+from django.contrib import messages
+
+from .models import Paciente, Epicrisis
+from .forms import EpicrisisForm, MedicamentoFormSet
 
 @login_required
 def crear_epicrisis(request, paciente_id):
@@ -185,37 +192,41 @@ def crear_epicrisis(request, paciente_id):
 
     if request.method == 'POST':
         epicrisis_form = EpicrisisForm(request.POST)
-        formset = MedicamentoFormSet(request.POST)
+        # Instancia incompleta para el formset
+        instancia = Epicrisis(paciente=paciente, autor=request.user)
+        formset = MedicamentoFormSet(request.POST, instance=instancia)
 
         if epicrisis_form.is_valid() and formset.is_valid():
+            # Guardar primero la epicrisis
             epicrisis = epicrisis_form.save(commit=False)
             epicrisis.paciente = paciente
             epicrisis.autor = request.user
             epicrisis.save()
 
-            # Asocia los medicamentos
+            # Asociar y guardar los medicamentos
             formset.instance = epicrisis
             formset.save()
 
             if request.POST.get('accion') == 'finalizar':
                 epicrisis.finalizado = True
-                epicrisis.paciente.fecha_egreso = now().date()
-                epicrisis.paciente.save()
+                paciente.fecha_egreso = now().date()
+                paciente.save()
                 epicrisis.save()
                 return redirect('exportar_epicrisis_pdf', epicrisis_id=epicrisis.id)
 
+            messages.success(request, "Borrador de epicrisis guardado.")
             return redirect('detalle_paciente', paciente_id=paciente.id)
-
+        # Si hay errores, caemos al render final para mostrarlos
     else:
         epicrisis_form = EpicrisisForm()
-        formset = MedicamentoFormSet(instance=Epicrisis())
+        instancia = Epicrisis(paciente=paciente, autor=request.user)
+        formset = MedicamentoFormSet(instance=instancia)
 
     return render(request, 'epicrisis/crear_epicrisis.html', {
         'form': epicrisis_form,
         'formset': formset,
         'paciente': paciente,
     })
-
 
 def editar_epicrisis(request, epicrisis_id):
     epicrisis = get_object_or_404(Epicrisis, id=epicrisis_id)
