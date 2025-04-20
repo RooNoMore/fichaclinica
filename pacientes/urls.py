@@ -15,5 +15,4 @@ urlpatterns = [
     path('interconsultas/', views.interconsultas_recibidas, name='interconsultas_recibidas'),
     path('interconsultas/<int:interconsulta_id>/responder/', views.responder_interconsulta, name='responder_interconsulta'),
     path('camas-disponibles/', views.camas_disponibles, name='camas_disponibles'),
-
 ]

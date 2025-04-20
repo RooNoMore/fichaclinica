@@ -49,6 +49,7 @@
     <div class="tab-content mt-3" id="miTabContent">
 
         <!-- Evoluciones -->
+        <!-- Evoluciones -->
         <div class="tab-pane fade show active" id="evoluciones">
             <!-- Formulario para nueva evolución -->
             <form method="POST">
@@ -69,6 +70,72 @@
         </div>
 
         <!-- Interconsultas -->
+        <div class="tab-pane fade" id="interconsulta">
+            <p><a href="{% url 'crear_interconsulta' paciente.id %}" class="btn btn-primary mb-3">Solicitar Interconsulta</a></p>
+
+            {% if paciente.interconsultas.all %}
+                {% for inter in paciente.interconsultas.all %}
+                    <div class="card mb-2">
+                        <div class="card-body">
+                            <p><strong>Motivo:</strong> {{ inter.motivo }}</p>
+                            <p><strong>Fecha:</strong> {{ inter.fecha_solicitud|date:"d/m/Y H:i" }}</p>
+                            <p>
+                                <strong>Estado:</strong>
+                                {% if inter.atendido %}
+                                    <span class="badge bg-success">Respondida</span>
+                                    <br><strong>Respuesta:</strong> {{ inter.respuesta }}
+                                {% else %}
+                                    <span class="badge bg-warning text-dark">Pendiente</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>No hay interconsultas registradas.</p>
+            {% endif %}
+        </div>
+
+        <!-- Exámenes -->
+        <div class="tab-pane fade" id="examenes">
+            <p><a href="{% url 'solicitar_examenes' paciente.id %}" class="btn btn-primary mb-3">Solicitar Exámenes</a></p>
+
+            {% if paciente.solicitudes_examenes.all %}
+                {% for examen in paciente.solicitudes_examenes.all %}
+                    <div class="card mb-2">
+                        <div class="card-body">
+                            <p><strong>Tipo:</strong> {{ examen.tipo_examen }}</p>
+                            <p><strong>Indicaciones:</strong> {{ examen.indicaciones|default:"Sin indicaciones" }}</p>
+                            <p><strong>Fecha:</strong> {{ examen.fecha_solicitud|date:"d/m/Y H:i" }}</p>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>No hay exámenes solicitados.</p>
+            {% endif %}
+        </div>
+
+        <!-- Recetas -->
+        <div class="tab-pane fade" id="receta">
+            <p><a href="{% url 'crear_receta' paciente.id %}" class="btn btn-primary mb-3">Crear Receta</a></p>
+
+            {% if paciente.recetas.all %}
+                {% for receta in paciente.recetas.all %}
+                    <div class="card mb-2">
+                        <div class="card-body">
+                            <p><strong>Detalle:</strong> {{ receta.medicamento }}</p>
+                            <p><strong>Fecha:</strong> {{ receta.fecha_receta|date:"d/m/Y H:i" }}</p>
+                            <p><strong>Médico:</strong> {{ receta.medico }}</p>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>No hay recetas registradas.</p>
+            {% endif %}
+        </div>
+
+
+        <!-- Epicrisis -->
         <div class="tab-pane fade" id="epicrisis" role="tabpanel">
     <h4 class="mt-3">Crear nueva Epicrisis</h4>
     <form method="POST" action="{% url 'crear_epicrisis' paciente.id %}">
@@ -106,6 +173,15 @@
                     <p><strong>Indicaciones:</strong> {{ e.indicaciones_alta }}</p>
                     <p><strong>Médico:</strong> {{ e.autor }}</p>
                     <a href="{% url 'exportar_epicrisis_pdf' e.id %}" class="btn btn-outline-secondary btn-sm">Descargar PDF</a>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+
+    <button type="submit" name="accion" value="borrador" class="btn btn-secondary">Guardar borrador</button>
+    <button type="submit" name="accion" value="finalizar" class="btn btn-primary">Generar Epicrisis (PDF)</button>
+</form>
+
+
                 </div>
             </div>
         {% endfor %}

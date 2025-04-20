@@ -104,11 +104,13 @@ class Receta(models.Model):
 
 
 class Epicrisis(models.Model):
-    paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE, related_name='epicrisis')
-    fecha = models.DateTimeField(auto_now_add=True)
+    paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE)
     diagnostico_egreso = models.TextField()
+    comentario_evolucion = models.TextField()
     indicaciones_alta = models.TextField()
-    autor = models.ForeignKey(PerfilUsuario, on_delete=models.PROTECT)
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    finalizado = models.BooleanField(default=False)  # 👈 nuevo campo
+    autor = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
-        return f"Epicrisis de {self.paciente.nombre} - {self.fecha.strftime('%d/%m/%Y')}"    
+        return f'Epicrisis de {self.paciente} ({self.fecha_creacion.date()})'

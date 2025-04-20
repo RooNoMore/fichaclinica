@@ -2,12 +2,23 @@
 from django import forms
 from .models import Paciente, Cama, Unidad
 
+from django import forms
+from .models import Paciente, Unidad, Cama
+
 class PacienteForm(forms.ModelForm):
-    unidad = forms.ModelChoiceField(queryset=Unidad.objects.all(), required=False, label="Unidad")
+    unidad = forms.ModelChoiceField(
+        queryset=Unidad.objects.all(),
+        required=False,
+        label="Unidad",
+        widget=forms.Select(attrs={'id': 'id_unidad'})  # NECESARIO PARA EL JS
+    )
 
     class Meta:
         model = Paciente
         fields = ['ficha', 'nombre', 'diagnostico', 'unidad', 'cama', 'fecha_nacimiento', 'rut', 'fono', 'domicilio', 'fecha_ingreso', 'fecha_egreso']
+        widgets = {
+            'cama': forms.Select(attrs={'id': 'id_cama'})  # NECESARIO TAMBIÉN
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -25,6 +36,7 @@ class PacienteForm(forms.ModelForm):
             self.fields['cama'].queryset = Cama.objects.filter(unidad=self.instance.cama.unidad)
             self.fields['unidad'].initial = self.instance.cama.unidad
 
+            
 from django import forms
 from .models import Evolucion
 

@@ -15,38 +15,32 @@
 </form>
 
 <p><a href="{% url 'lista_camas' %}">Volver a camas</a></p>
-
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    const unidadSelect = document.getElementById('id_unidad');
-    const camaSelect = document.getElementById('id_cama');
-
-    unidadSelect.addEventListener('change', function () {
-        const unidadId = this.value;
-        fetch(`/camas-disponibles/?unidad=${unidadId}`)
-            .then(response => response.json())
-            .then(data => {
-                camaSelect.innerHTML = '';
-                const defaultOption = document.createElement('option');
-                defaultOption.value = '';
-                defaultOption.text = '---------';
-                camaSelect.appendChild(defaultOption);
-
-                if (data.length === 0) {
-                    const option = document.createElement('option');
-                    option.text = 'No hay camas disponibles';
-                    option.disabled = true;
-                    camaSelect.appendChild(option);
-                }
-
-                data.forEach(cama => {
-                    const option = document.createElement('option');
-                    option.value = cama.id;
-                    option.text = cama.numero;
-                    camaSelect.appendChild(option);
+    document.addEventListener('DOMContentLoaded', function () {
+        const unidadSelect = document.getElementById('id_unidad');
+        const camaSelect = document.getElementById('id_cama');
+    
+        unidadSelect.addEventListener('change', function () {
+            const unidadId = this.value;
+    
+            fetch(`/pacientes/camas-disponibles/?unidad=${unidadId}`)
+                .then(response => response.json())
+                .then(data => {
+                    camaSelect.innerHTML = '';  // Limpia las opciones anteriores
+    
+                    const defaultOption = document.createElement('option');
+                    defaultOption.value = '';
+                    defaultOption.textContent = '---------';
+                    camaSelect.appendChild(defaultOption);
+    
+                    data.forEach(cama => {
+                        const option = document.createElement('option');
+                        option.value = cama.id;
+                        option.textContent = cama.numero;
+                        camaSelect.appendChild(option);
+                    });
                 });
-            });
+        });
     });
-});
-</script>
+    </script>
 {% endblock %}
