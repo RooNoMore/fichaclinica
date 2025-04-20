@@ -7,6 +7,10 @@ from weasyprint import HTML
 from .models import Unidad, Paciente, Evolucion, Cama, Interconsulta, Servicio
 from .forms import PacienteForm, EvolucionForm, InterconsultaForm, SolicitudExamenForm, RecetaForm
 from django.utils import timezone
+from django.utils.timezone import now
+from django.contrib import messages
+from .models import Paciente, Epicrisis
+from .forms import EpicrisisForm, EvolucionForm
 
 
 @login_required
@@ -38,6 +42,8 @@ def nuevo_paciente(request):
 
     return render(request, 'pacientes/nuevo_paciente.html', {'form': form})
 
+
+
 @login_required
 def detalle_paciente(request, paciente_id):
     paciente = get_object_or_404(Paciente, id=paciente_id)
@@ -54,10 +60,14 @@ def detalle_paciente(request, paciente_id):
     else:
         form = EvolucionForm()
 
+    # 👉 Aquí agregas el formulario de epicrisis vacío
+    epicrisis_form = EpicrisisForm()
+
     contexto = {
         'paciente': paciente,
         'evoluciones': evoluciones,
         'form': form,
+        'epicrisis_form': epicrisis_form,
     }
 
     return render(request, 'pacientes/detalle_paciente.html', contexto)
@@ -168,38 +178,56 @@ from weasyprint import HTML
 from django.template.loader import render_to_string
 
 @login_required
+
 def crear_epicrisis(request, paciente_id):
     paciente = get_object_or_404(Paciente, id=paciente_id)
 
     if request.method == 'POST':
-        data = {key: request.POST.get(key, '') for key in [
-            'diagnostico', 'AM', 'AQx', 'Alergias', 'Fcos',
-            'ingreso', 'LabIngreso', 'PlanIngreso', 'intraop',
-            'evolucion', 'dgegreso', 'indicacionesSegunDgPH', 'peso'
-        ]}
+        form = EpicrisisForm(request.POST)
+        if form.is_valid():
+            epicrisis = form.save(commit=False)
+            epicrisis.paciente = paciente
+            epicrisis.autor = request.user
 
-        context = {
-            'paciente': paciente,
-            'rut': paciente.rut if hasattr(paciente, 'rut') else '',
-            'FN': paciente.fecha_nacimiento.strftime('%d/%m/%Y') if hasattr(paciente, 'fecha_nacimiento') else '',
-            'fono': paciente.telefonos if hasattr(paciente, 'telefonos') else '',
-            'dom': paciente.domicilio if hasattr(paciente, 'domicilio') else '',
-            'FE': timezone.now().strftime('%d/%m/%Y'),
-            'ficha': paciente.ficha,
-            'logo_url': request.build_absolute_uri(static('img/logo.png')),
-            'mdtte': str(request.user.perfilusuario),
-            **data
-        }
+            if request.POST.get('accion') == 'finalizar':
+                epicrisis.finalizado = True
+                epicrisis.save()
+                paciente.fecha_egreso = now().date()
+                paciente.save()
+                return redirect('exportar_epicrisis_pdf', epicrisis_id=epicrisis.id)
+            else:
+                epicrisis.finalizado = False
+                epicrisis.save()
+                return redirect('detalle_paciente', paciente_id=paciente.id)
 
-        html_string = render_to_string('pacientes/epicrisis_template.html', context)
-        pdf = HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf()
+    # NO INTENTAMOS RENDERIZAR UNA PLANTILLA
+    return redirect('detalle_paciente', paciente_id=paciente.id)
 
-        response = HttpResponse(pdf, content_type='application/pdf')
-        response['Content-Disposition'] = f'attachment; filename="epicrisis_{paciente.nombre}.pdf"'
-        return response
+def editar_epicrisis(request, epicrisis_id):
+    epicrisis = get_object_or_404(Epicrisis, id=epicrisis_id)
 
-    # 🚀 Agregado para manejar GET
-    return redirect('detalle_paciente', paciente_id=paciente_id)
+    if epicrisis.finalizado:
+        messages.warning(request, "No se puede editar una epicrisis ya finalizada.")
+        return redirect('detalle_paciente', paciente_id=epicrisis.paciente.id)
+
+    if request.method == 'POST':
+        form = EpicrisisForm(request.POST, instance=epicrisis)
+        if form.is_valid():
+            epicrisis = form.save()
+            if request.POST.get('accion') == 'finalizar':
+                epicrisis.finalizado = True
+                epicrisis.paciente.fecha_egreso = now().date()
+                epicrisis.paciente.save()
+                epicrisis.save()
+                return redirect('exportar_epicrisis_pdf', epicrisis_id=epicrisis.id)
+            return redirect('detalle_paciente', paciente_id=epicrisis.paciente.id)
+    else:
+        form = EpicrisisForm(instance=epicrisis)
+
+    return render(request, 'epicrisis/editar_epicrisis.html', {
+        'form': form,
+        'epicrisis': epicrisis,
+    })
 
 
 @login_required
@@ -209,26 +237,26 @@ def exportar_epicrisis_pdf(request, epicrisis_id):
 
     context = {
         'paciente': paciente,
-        'rut': paciente.rut if hasattr(paciente, 'rut') else '',
-        'FN': paciente.fecha_nacimiento.strftime('%d/%m/%Y') if hasattr(paciente, 'fecha_nacimiento') else '',
-        'fono': paciente.telefonos if hasattr(paciente, 'telefonos') else '',
-        'dom': paciente.domicilio if hasattr(paciente, 'domicilio') else '',
-        'FE': epicrisis.fecha.strftime('%d/%m/%Y'),
+        'rut': getattr(paciente, 'rut', ''),
+        'FN': paciente.fecha_nacimiento.strftime('%d/%m/%Y') if paciente.fecha_nacimiento else '',
+        'fono': getattr(paciente, 'telefonos', ''),
+        'dom': getattr(paciente, 'domicilio', ''),
+        'FE': epicrisis.fecha_creacion.strftime('%d/%m/%Y'),
         'ficha': paciente.ficha,
         'logo_url': request.build_absolute_uri(static('img/logo.png')),
         'mdtte': str(epicrisis.autor),
-        'AM': epicrisis.am if hasattr(epicrisis, 'am') else '',
-        'AQx': epicrisis.aqx if hasattr(epicrisis, 'aqx') else '',
-        'Alergias': epicrisis.alergias if hasattr(epicrisis, 'alergias') else '',
-        'Fcos': epicrisis.fcos if hasattr(epicrisis, 'fcos') else '',
-        'ingreso': epicrisis.ingreso,
-        'LabIngreso': epicrisis.lab_ingreso,
-        'PlanIngreso': epicrisis.plan_ingreso,
-        'intraop': epicrisis.intraop,
-        'evolucion': epicrisis.evolucion,
+        'AM': getattr(epicrisis, 'am', ''),
+        'AQx': getattr(epicrisis, 'aqx', ''),
+        'Alergias': getattr(epicrisis, 'alergias', ''),
+        'Fcos': getattr(epicrisis, 'fcos', ''),
+        'ingreso': getattr(epicrisis, 'ingreso', ''),
+        'LabIngreso': getattr(epicrisis, 'lab_ingreso', ''),
+        'PlanIngreso': getattr(epicrisis, 'plan_ingreso', ''),
+        'intraop': getattr(epicrisis, 'intraop', ''),
+        'evolucion': getattr(epicrisis, 'comentario_evolucion', ''),
         'dgegreso': epicrisis.diagnostico_egreso,
         'indicacionesSegunDgPH': epicrisis.indicaciones_alta,
-        'peso': epicrisis.peso if hasattr(epicrisis, 'peso') else ''
+        'peso': getattr(epicrisis, 'peso', ''),
     }
 
     html_string = render_to_string('pacientes/epicrisis_template.html', context)

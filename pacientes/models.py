@@ -109,7 +109,7 @@ class Epicrisis(models.Model):
     comentario_evolucion = models.TextField()
     indicaciones_alta = models.TextField()
     fecha_creacion = models.DateTimeField(auto_now_add=True)
-    finalizado = models.BooleanField(default=False)  # 👈 nuevo campo
+    finalizado = models.BooleanField(default=False)
     autor = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):

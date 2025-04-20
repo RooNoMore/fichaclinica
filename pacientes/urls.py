@@ -15,4 +15,7 @@ urlpatterns = [
     path('interconsultas/', views.interconsultas_recibidas, name='interconsultas_recibidas'),
     path('interconsultas/<int:interconsulta_id>/responder/', views.responder_interconsulta, name='responder_interconsulta'),
     path('camas-disponibles/', views.camas_disponibles, name='camas_disponibles'),
+    path('paciente/<int:paciente_id>/epicrisis/crear/', views.crear_epicrisis, name='crear_epicrisis'),
+    path('epicrisis/<int:epicrisis_id>/exportar_pdf/', views.exportar_epicrisis_pdf, name='exportar_epicrisis_pdf'),
+    path('epicrisis/<int:epicrisis_id>/editar/', views.editar_epicrisis, name='editar_epicrisis'),
 ]

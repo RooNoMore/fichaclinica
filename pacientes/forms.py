@@ -65,3 +65,16 @@ class RecetaForm(forms.ModelForm):
     class Meta:
         model = Receta
         fields = ['medicamento', 'dosis', 'frecuencia', 'duracion', 'indicaciones_extra']
+
+
+from .models import Epicrisis
+
+class EpicrisisForm(forms.ModelForm):
+    class Meta:
+        model = Epicrisis
+        fields = ['diagnostico_egreso', 'comentario_evolucion', 'indicaciones_alta']
+        widgets = {
+            'diagnostico_egreso': forms.Textarea(attrs={'rows': 3}),
+            'comentario_evolucion': forms.Textarea(attrs={'rows': 3}),
+            'indicaciones_alta': forms.Textarea(attrs={'rows': 3}),
+        }

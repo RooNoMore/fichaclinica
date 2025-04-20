@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Editar Epicrisis</h2>
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+
+    <button type="submit" name="accion" value="borrador" class="btn btn-secondary">Guardar cambios</button>
+    <button type="submit" name="accion" value="finalizar" class="btn btn-primary">Finalizar y generar PDF</button>
+</form>
+
+<p class="mt-4">
+    <a href="{% url 'detalle_paciente' epicrisis.paciente.id %}">← Volver a ficha del paciente</a>
+</p>
+{% endblock %}
