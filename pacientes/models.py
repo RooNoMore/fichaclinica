@@ -37,7 +37,19 @@ class Paciente(models.Model):
     def __str__(self):
         return f'Ficha {self.ficha} - {self.nombre}'
     
+    def dar_de_alta(self):
+        self.hospitalizado = False
+        self.fecha_alta = timezone.now()
 
+        # Desocupar la cama si tiene una asignada
+        if self.cama:
+            self.cama.disponible = True
+            self.cama.save()
+            self.cama = None  # Quitar la cama del paciente
+
+        self.save()
+
+        
 class Cama(models.Model):
     numero = models.CharField()
     unidad = models.ForeignKey(Unidad, related_name='camas', on_delete=models.CASCADE)

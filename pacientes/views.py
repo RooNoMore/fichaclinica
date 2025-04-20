@@ -11,6 +11,14 @@ from django.utils.timezone import now
 from django.contrib import messages
 from .models import Paciente, Epicrisis
 from .forms import EpicrisisForm, EvolucionForm, MedicamentoFormSet
+from weasyprint import HTML
+from django.template.loader import render_to_string
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
+from django.utils.timezone import now
+from django.contrib import messages
+from .models import Paciente, Epicrisis
+from .forms import EpicrisisForm, MedicamentoFormSet
 
 
 @login_required
@@ -45,32 +53,26 @@ def nuevo_paciente(request):
 
 
 @login_required
+@login_required
 def detalle_paciente(request, paciente_id):
     paciente = get_object_or_404(Paciente, id=paciente_id)
-    evoluciones = paciente.evoluciones.order_by('-fecha')
+    evoluciones = paciente.evoluciones.all().order_by('-fecha')
+    
+    # Verifica si hay epicrisis en borrador
+    hay_borrador_epicrisis = Epicrisis.objects.filter(paciente=paciente, finalizado=False).exists()
 
-    if request.method == 'POST':
-        form = EvolucionForm(request.POST)
-        if form.is_valid():
-            nueva_evolucion = form.save(commit=False)
-            nueva_evolucion.paciente = paciente
-            nueva_evolucion.autor = request.user
-            nueva_evolucion.save()
-            return redirect('detalle_paciente', paciente_id=paciente_id)
-    else:
-        form = EvolucionForm()
+    # Instancia de formulario solo si no hay borrador
+    epicrisis_form = EpicrisisForm() if not hay_borrador_epicrisis else None
 
-    # 👉 Aquí agregas el formulario de epicrisis vacío
-    epicrisis_form = EpicrisisForm()
-
-    contexto = {
+    context = {
         'paciente': paciente,
         'evoluciones': evoluciones,
-        'form': form,
         'epicrisis_form': epicrisis_form,
+        'mostrar_formulario_epicrisis': not hay_borrador_epicrisis,
     }
+    return render(request, 'pacientes/detalle_paciente.html', context)
 
-    return render(request, 'pacientes/detalle_paciente.html', contexto)
+
 
 @login_required
 def exportar_pdf(request, paciente_id):
@@ -174,58 +176,46 @@ def inicio(request):
     return render(request, 'pacientes/inicio.html')
 
 
-from weasyprint import HTML
-from django.template.loader import render_to_string
-
 
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.utils.timezone import now
 from django.contrib import messages
-
 from .models import Paciente, Epicrisis
 from .forms import EpicrisisForm, MedicamentoFormSet
+
+@login_required
 
 @login_required
 def crear_epicrisis(request, paciente_id):
     paciente = get_object_or_404(Paciente, id=paciente_id)
 
-    if request.method == 'POST':
-        epicrisis_form = EpicrisisForm(request.POST)
-        # Instancia incompleta para el formset
-        instancia = Epicrisis(paciente=paciente, autor=request.user)
-        formset = MedicamentoFormSet(request.POST, instance=instancia)
+    # Verificar si ya existe una epicrisis no finalizada
+    epicrisis_existente = Epicrisis.objects.filter(paciente=paciente, finalizado=False).first()
+    if epicrisis_existente:
+        messages.warning(request, "Ya existe una epicrisis en borrador para este paciente.")
+        return redirect('detalle_paciente', paciente_id=paciente.id)  # O a donde quieras redirigir
 
-        if epicrisis_form.is_valid() and formset.is_valid():
-            # Guardar primero la epicrisis
-            epicrisis = epicrisis_form.save(commit=False)
+    # Si no hay borrador previo, permite crear una nueva
+    if request.method == 'POST':
+        form = EpicrisisForm(request.POST)
+        if form.is_valid():
+            epicrisis = form.save(commit=False)
             epicrisis.paciente = paciente
             epicrisis.autor = request.user
             epicrisis.save()
 
-            # Asociar y guardar los medicamentos
-            formset.instance = epicrisis
-            formset.save()
-
             if request.POST.get('accion') == 'finalizar':
                 epicrisis.finalizado = True
-                paciente.fecha_egreso = now().date()
-                paciente.save()
                 epicrisis.save()
-                return redirect('exportar_epicrisis_pdf', epicrisis_id=epicrisis.id)
 
-            messages.success(request, "Borrador de epicrisis guardado.")
             return redirect('detalle_paciente', paciente_id=paciente.id)
-        # Si hay errores, caemos al render final para mostrarlos
     else:
-        epicrisis_form = EpicrisisForm()
-        instancia = Epicrisis(paciente=paciente, autor=request.user)
-        formset = MedicamentoFormSet(instance=instancia)
+        form = EpicrisisForm()
 
-    return render(request, 'epicrisis/crear_epicrisis.html', {
-        'form': epicrisis_form,
-        'formset': formset,
-        'paciente': paciente,
+    return render(request, 'tu_template.html', {
+        'form': form,
+        'paciente': paciente
     })
 
 def editar_epicrisis(request, epicrisis_id):
@@ -280,7 +270,9 @@ def exportar_epicrisis_pdf(request, epicrisis_id):
         'intraop': getattr(epicrisis, 'intraop', ''),
         'evolucion': getattr(epicrisis, 'comentario_evolucion', ''),
         'dgegreso': epicrisis.diagnostico_egreso,
-        'indicacionesSegunDgPH': epicrisis.indicaciones_alta,
+        'indicacionesSegunDgPH': epicrisis.indicaciones_generales,
+        'indicacionesControles': epicrisis.indicaciones_controles,
+        'medicamentos': epicrisis.medicamentos_indicados.all(),
         'peso': getattr(epicrisis, 'peso', ''),
     }
 
@@ -301,3 +293,25 @@ def camas_disponibles(request):
     camas = Cama.objects.filter(unidad_id=unidad_id).exclude(id__in=camas_ocupadas)
     data = [{'id': cama.id, 'numero': cama.numero} for cama in camas]
     return JsonResponse(data, safe=False)    
+
+
+@login_required
+def dar_de_alta_paciente(request, paciente_id):
+    paciente = get_object_or_404(Paciente, id=paciente_id)
+
+    if request.method == 'POST':
+        paciente.dar_de_alta()
+        messages.success(request, f'El paciente {paciente.nombre} ha sido dado de alta.')
+        return redirect('detalle_paciente', paciente_id=paciente.id)
+
+    messages.error(request, 'Método no permitido.')
+    return redirect('detalle_paciente', paciente_id=paciente.id)
+    paciente = get_object_or_404(Paciente, id=paciente_id)
+
+    if request.method == 'POST':
+        paciente.dar_de_alta()
+        messages.success(request, f'El paciente {paciente.nombre} ha sido dado de alta.')
+        return redirect('detalle_paciente', paciente_id=paciente.id)
+
+    messages.error(request, 'Método no permitido.')
+    return redirect('detalle_paciente', paciente_id=paciente.id)    

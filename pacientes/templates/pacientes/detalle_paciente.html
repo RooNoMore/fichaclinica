@@ -26,6 +26,14 @@
 
 
 <hr>
+{% if paciente.hospitalizado %}
+<form method="post" action="{% url 'dar_de_alta_paciente' paciente.id %}">
+  {% csrf_token %}
+  <button type="submit" class="btn btn-danger">Dar de Alta</button>
+</form>
+{% else %}
+<p><strong>Paciente dado de alta el {{ paciente.fecha_alta|date:"d/m/Y H:i" }}</strong></p>
+{% endif %}
 
 <div>
     <ul class="nav nav-tabs" id="miTab" role="tablist">
@@ -137,15 +145,17 @@
 
         <!-- Epicrisis -->
 <div class="tab-pane fade" id="epicrisis" role="tabpanel">
-    <h4 class="mt-3">Nueva Epicrisis</h4>
-
-    <form method="POST" action="{% url 'crear_epicrisis' paciente.id %}">
-        {% csrf_token %}
-        {{ epicrisis_form.as_p }}
-
-        <button type="submit" name="accion" value="borrador" class="btn btn-secondary">Guardar borrador</button>
-        <button type="submit" name="accion" value="finalizar" class="btn btn-success">Generar Epicrisis (PDF)</button>
-    </form>
+    {% if mostrar_formulario_epicrisis %}
+        <h2>Crear Epicrisis</h2>
+        <form method="post" action="{% url 'crear_epicrisis' paciente.id %}">
+            {% csrf_token %}
+            {{ epicrisis_form.as_p }}
+            <button type="submit" name="accion" value="guardar">Guardar</button>
+            <button type="submit" name="accion" value="finalizar">Finalizar</button>
+        </form>
+        {% else %}
+        <p><strong>Ya existe una epicrisis en borrador para este paciente.</strong></p>
+    {% endif %}
 
     <hr class="my-4">
 
