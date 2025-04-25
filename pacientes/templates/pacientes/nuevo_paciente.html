@@ -1,46 +1,68 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load custom_filters %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 {% endblock %}
 
 {% block content %}
-<h1>Registrar nuevo paciente</h1>
+<div class="container mt-4" style="max-width: 700px;">
 
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Guardar</button>
-</form>
+    <h1 class="mb-4 text-center">Registrar nuevo paciente</h1>
 
-<p><a href="{% url 'lista_camas' %}">Volver a camas</a></p>
+    <form method="post">
+        {% csrf_token %}
+        
+        {% for field in form %}
+            <div class="mb-3">
+                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}:</label>
+                {{ field|add_class:"form-control" }}
+                {% if field.errors %}
+                    <div class="text-danger">{{ field.errors }}</div>
+                {% endif %}
+            </div>
+        {% endfor %}
+
+        <div class="d-grid">
+            <button type="submit" class="btn btn-primary">Guardar</button>
+        </div>
+    </form>
+
+    <div class="mt-3 text-center">
+        <a href="{% url 'lista_camas' %}" class="text-decoration-none">← Volver a camas</a>
+    </div>
+</div>
+
+<!-- Script para actualizar camas según unidad -->
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const unidadSelect = document.getElementById('id_unidad');
         const camaSelect = document.getElementById('id_cama');
-    
-        unidadSelect.addEventListener('change', function () {
-            const unidadId = this.value;
-    
-            fetch(`/pacientes/camas-disponibles/?unidad=${unidadId}`)
-                .then(response => response.json())
-                .then(data => {
-                    camaSelect.innerHTML = '';  // Limpia las opciones anteriores
-    
-                    const defaultOption = document.createElement('option');
-                    defaultOption.value = '';
-                    defaultOption.textContent = '---------';
-                    camaSelect.appendChild(defaultOption);
-    
-                    data.forEach(cama => {
-                        const option = document.createElement('option');
-                        option.value = cama.id;
-                        option.textContent = cama.numero;
-                        camaSelect.appendChild(option);
+
+        if (unidadSelect && camaSelect) {
+            unidadSelect.addEventListener('change', function () {
+                const unidadId = this.value;
+
+                fetch(`/pacientes/camas-disponibles/?unidad=${unidadId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        camaSelect.innerHTML = '';
+
+                        const defaultOption = document.createElement('option');
+                        defaultOption.value = '';
+                        defaultOption.textContent = '---------';
+                        camaSelect.appendChild(defaultOption);
+
+                        data.forEach(cama => {
+                            const option = document.createElement('option');
+                            option.value = cama.id;
+                            option.textContent = cama.numero;
+                            camaSelect.appendChild(option);
+                        });
                     });
-                });
-        });
+            });
+        }
     });
-    </script>
+</script>
 {% endblock %}

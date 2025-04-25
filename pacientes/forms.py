@@ -1,10 +1,10 @@
 # forms.py
 from django import forms
-from .models import Paciente, Cama, Unidad, Evolucion, MedicamentoEpicrisis
+from .models import Paciente, Cama, Unidad, Evolucion
 from django import forms
 from .models import Paciente, Unidad, Cama
 from django.forms import inlineformset_factory
-from .models import Epicrisis, MedicamentoEpicrisis
+
 
 
 
@@ -19,9 +19,10 @@ class PacienteForm(forms.ModelForm):
 
     class Meta:
         model = Paciente
-        fields = ['ficha', 'nombre', 'diagnostico', 'unidad', 'cama', 'fecha_nacimiento', 'rut', 'fono', 'domicilio', 'fecha_ingreso', 'fecha_egreso']
+        fields = ['ficha', 'nombre', 'diagnostico', 'unidad', 'cama', 'fecha_nacimiento', 'rut', 'fono', 'domicilio', 'fecha_ingreso']
         widgets = {
             'cama': forms.Select(attrs={'id': 'id_cama'})  # NECESARIO TAMBIÉN
+            
         }
 
     def __init__(self, *args, **kwargs):
@@ -90,17 +91,16 @@ class EpicrisisForm(forms.ModelForm):
             'indicaciones_controles': forms.Textarea(attrs={'rows': 1}),
         }
 
-class MedicamentoEpicrisisForm(forms.ModelForm):
-    class Meta:
-        model = MedicamentoEpicrisis
-        fields = ['medicamento', 'frecuencia', 'duracion', 'via']
+# class MedicamentoForm(forms.ModelForm):
+#     class Meta:
+#         model = Medicamento
+#         fields = ['medicamento', 'frecuencia', 'duracion', 'via']
 
 
 
-MedicamentoFormSet = inlineformset_factory(
-    Epicrisis,
-    MedicamentoEpicrisis,
-    form=MedicamentoEpicrisisForm,
-    extra=1,
-    can_delete=True
-)        
+# MedicamentoFormSet = inlineformset_factory(
+#     Paciente, Medicamento,  # <-- asegúrate que el primer modelo es Paciente
+#     form=MedicamentoForm,
+#     extra=1,
+#     can_delete=True
+# )    

@@ -1,23 +1,73 @@
-<!-- pacientes/templates/pacientes/inicio.html -->
 {% extends 'base.html' %}
-<!DOCTYPE html>
-{% load static %}
+
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/styles.css' %}">
+<!-- Bootstrap y FontAwesome -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 {% endblock %}
 
 {% block content %}
-<body>
-    <h1>Panel Principal</h1>
+<div class="container mt-4">
 
-    <nav>
-        <ul>
-            <li><a href="{% url 'lista_camas' %}">🛏️ Lista de Camas</a></li>
-            <li><a href="{% url 'nuevo_paciente' %}">➕ Nuevo Paciente</a></li>
-            <li><a href="{% url 'interconsultas_recibidas' %}">Interconsultas</a></li>
-            <!-- Aquí puedes ir agregando más accesos -->
-        </ul>
-    </nav>
-</body>
+    <!-- HERO -->
+    <div class="p-5 mb-4 bg-light rounded-3 shadow-sm">
+        <div class="container-fluid py-3">
+            <h1 class="display-5 fw-bold">Bienvenido, {{ user.perfilusuario.first_name }} {{ user.perfilusuario.last_name }}</h1>
+            <p class="fs-5 text-muted">{{ user.perfilusuario.cargo }} - {{user.perfilusuario.servicio}}</p>
+            <p>Este es tu panel principal. Desde aquí puedes acceder rápidamente a las funciones clave.</p>
+        </div>
+    </div>
+
+    <!-- CARDS -->
+    <div class="row g-4">
+        <!-- Lista de camas -->
+        <div class="col-md-6 col-lg-3">
+            <a href="{% url 'lista_camas' %}" class="text-decoration-none text-dark">
+                <div class="card text-center shadow-sm h-100">
+                    <div class="card-body">
+                        <i class="fas fa-bed fa-2x mb-3 text-primary"></i>
+                        <h5 class="card-title">Lista de Camas</h5>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Nuevo paciente -->
+        <div class="col-md-6 col-lg-3">
+            <a href="{% url 'nuevo_paciente' %}" class="text-decoration-none text-dark">
+                <div class="card text-center shadow-sm h-100">
+                    <div class="card-body">
+                        <i class="fas fa-user-plus fa-2x mb-3 text-success"></i>
+                        <h5 class="card-title">Nuevo Paciente</h5>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Interconsultas -->
+        <div class="col-md-6 col-lg-3">
+            <a href="{% url 'interconsultas_recibidas' %}" class="text-decoration-none text-dark">
+                <div class="card text-center shadow-sm h-100">
+                    <div class="card-body">
+                        <i class="fas fa-notes-medical fa-2x mb-3 text-warning"></i>
+                        <h5 class="card-title">Interconsultas</h5>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Buscar pacientes -->
+        <div class="col-md-6 col-lg-3">
+            <a href="{% url 'buscar_pacientes' %}" class="text-decoration-none text-dark">
+                <div class="card text-center shadow-sm h-100">
+                    <div class="card-body">
+                        <i class="fas fa-search fa-2x mb-3 text-info"></i>
+                        <h5 class="card-title">Buscar Pacientes</h5>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+</div>
 {% endblock %}
-</html>

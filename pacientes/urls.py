@@ -19,4 +19,5 @@ urlpatterns = [
     path('epicrisis/<int:epicrisis_id>/exportar_pdf/', views.exportar_epicrisis_pdf, name='exportar_epicrisis_pdf'),
     path('epicrisis/<int:epicrisis_id>/editar/', views.editar_epicrisis, name='editar_epicrisis'),
     path('pacientes/<int:paciente_id>/alta/', views.dar_de_alta_paciente, name='dar_de_alta_paciente'),
+    path('buscar/', views.buscar_pacientes, name='buscar_pacientes'),
 ]

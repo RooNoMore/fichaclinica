@@ -1,25 +1,29 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponse
+# Python estándar
+from datetime import datetime
+
+# Terceros
+from weasyprint import HTML
+
+# Django
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.templatetags.static import static
-from weasyprint import HTML
-from .models import Unidad, Paciente, Evolucion, Cama, Interconsulta, Servicio
-from .forms import PacienteForm, EvolucionForm, InterconsultaForm, SolicitudExamenForm, RecetaForm
 from django.utils import timezone
 from django.utils.timezone import now
-from django.contrib import messages
-from .models import Paciente, Epicrisis
-from .forms import EpicrisisForm, EvolucionForm, MedicamentoFormSet
-from weasyprint import HTML
-from django.template.loader import render_to_string
-from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth.decorators import login_required
-from django.utils.timezone import now
-from django.contrib import messages
-from .models import Paciente, Epicrisis
-from .forms import EpicrisisForm, MedicamentoFormSet
 
+# Locales (de tu app)
+from .forms import (
+    EvolucionForm, InterconsultaForm, PacienteForm,
+    RecetaForm, SolicitudExamenForm, EpicrisisForm
+)
+from .models import (
+    Cama, Epicrisis, Evolucion, Interconsulta,
+    Paciente, Servicio, Unidad
+)
 
 @login_required
 def lista_camas(request):
@@ -53,25 +57,34 @@ def nuevo_paciente(request):
 
 
 @login_required
-@login_required
 def detalle_paciente(request, paciente_id):
     paciente = get_object_or_404(Paciente, id=paciente_id)
     evoluciones = paciente.evoluciones.all().order_by('-fecha')
     
-    # Verifica si hay epicrisis en borrador
     hay_borrador_epicrisis = Epicrisis.objects.filter(paciente=paciente, finalizado=False).exists()
-
-    # Instancia de formulario solo si no hay borrador
     epicrisis_form = EpicrisisForm() if not hay_borrador_epicrisis else None
+    
+    # Medicamentos formset
+    # formset = MedicamentoFormSet(request.POST or None, instance=paciente)
+    if not Epicrisis.objects.filter(episodio=episodio).exists():
+        Epicrisis.objects.create(episodio=episodio, ...)
+    else:
+        messages.warning(request, "Ya existe una epicrisis para este episodio.")
+
+        
+    if request.method == 'POST':
+        if formset.is_valid():
+            formset.save()
+            return redirect('detalle_paciente', paciente_id=paciente.id)
 
     context = {
         'paciente': paciente,
         'evoluciones': evoluciones,
         'epicrisis_form': epicrisis_form,
         'mostrar_formulario_epicrisis': not hay_borrador_epicrisis,
+        # 'formset': formset,  # Agregamos el formset al contexto
     }
     return render(request, 'pacientes/detalle_paciente.html', context)
-
 
 
 @login_required
@@ -177,12 +190,7 @@ def inicio(request):
 
 
 
-from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth.decorators import login_required
-from django.utils.timezone import now
-from django.contrib import messages
-from .models import Paciente, Epicrisis
-from .forms import EpicrisisForm, MedicamentoFormSet
+
 
 @login_required
 
@@ -315,3 +323,21 @@ def dar_de_alta_paciente(request, paciente_id):
 
     messages.error(request, 'Método no permitido.')
     return redirect('detalle_paciente', paciente_id=paciente.id)    
+
+
+@login_required
+def buscar_pacientes(request):
+    query = request.GET.get('q')
+    resultados = []
+
+    if query:
+        resultados = Paciente.objects.filter(
+            Q(nombre__icontains=query) |
+            Q(rut__icontains=query) |
+            Q(ficha__icontains=query)
+        )
+
+    return render(request, 'pacientes/buscar_pacientes.html', {
+        'resultados': resultados,
+        'query': query
+    })

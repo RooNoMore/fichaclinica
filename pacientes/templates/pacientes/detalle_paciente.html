@@ -24,6 +24,38 @@
     </div>
 </div>
 
+<h3>Medicamentos</h3>
+
+{% comment %} <form method="post">
+    {% csrf_token %}
+    {{ formset.management_form }}
+    <table>
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Dosis</th>
+                <th>Frecuencia</th>
+                <th>Eliminar</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for form in formset %}
+                <tr>
+                    <td>{{ form.medicamento }}</td>
+                    <td>{{ form.frecuencia }}</td>
+                    <td>{{ form.via }}</td>
+                    <td>{{ form.duracion }}</td>
+                    <td>
+                        {% if form.can_delete %}
+                            {{ form.DELETE }}
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <button type="submit">Guardar medicamentos</button>
+</form> {% endcomment %}
 
 <hr>
 {% if paciente.hospitalizado %}
@@ -32,7 +64,7 @@
   <button type="submit" class="btn btn-danger">Dar de Alta</button>
 </form>
 {% else %}
-<p><strong>Paciente dado de alta el {{ paciente.fecha_alta|date:"d/m/Y H:i" }}</strong></p>
+<p><strong>Paciente dado de alta el {{ paciente.fecha_egreso|date:"d/m/Y H:i" }}</strong></p>
 {% endif %}
 
 <div>
