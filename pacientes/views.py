@@ -18,11 +18,11 @@ from django.utils.timezone import now
 # Locales (de tu app)
 from .forms import (
     EvolucionForm, InterconsultaForm, PacienteForm,
-    RecetaForm, SolicitudExamenForm, EpicrisisForm
+    RecetaForm, SolicitudExamenForm, EpicrisisForm, MedicamentoFormSet
 )
 from .models import (
     Cama, Epicrisis, Evolucion, Interconsulta,
-    Paciente, Servicio, Unidad
+    Paciente, Servicio, Unidad, Episodio, MedicamentoCatalogo
 )
 
 @login_required
@@ -47,7 +47,16 @@ def nuevo_paciente(request):
     if request.method == 'POST':
         form = PacienteForm(request.POST)
         if form.is_valid():
-            form.save()
+            paciente = form.save()  # Guardamos el paciente y lo capturamos
+
+            # 🔥 Luego creamos automáticamente el primer episodio
+            Episodio.objects.create(
+                paciente=paciente,
+                fecha_ingreso=timezone.now(),
+                motivo_ingreso='Ingreso inicial',
+                finalizado=False
+            )
+
             return redirect('lista_camas')
     else:
         form = PacienteForm()
@@ -55,37 +64,55 @@ def nuevo_paciente(request):
     return render(request, 'pacientes/nuevo_paciente.html', {'form': form})
 
 
-
 @login_required
 def detalle_paciente(request, paciente_id):
     paciente = get_object_or_404(Paciente, id=paciente_id)
-    evoluciones = paciente.evoluciones.all().order_by('-fecha')
-    
-    hay_borrador_epicrisis = Epicrisis.objects.filter(paciente=paciente, finalizado=False).exists()
-    epicrisis_form = EpicrisisForm() if not hay_borrador_epicrisis else None
-    
-    # Medicamentos formset
-    # formset = MedicamentoFormSet(request.POST or None, instance=paciente)
-    if not Epicrisis.objects.filter(episodio=episodio).exists():
-        Epicrisis.objects.create(episodio=episodio, ...)
-    else:
-        messages.warning(request, "Ya existe una epicrisis para este episodio.")
+    episodio_activo = paciente.episodios.filter(fecha_egreso__isnull=True).first()
+    evoluciones = episodio_activo.evoluciones.all().order_by('-fecha') if episodio_activo else []
 
-        
+    form = EvolucionForm()
+    formset = MedicamentoFormSet(request.POST or None, instance=episodio_activo) if episodio_activo else None
+
     if request.method == 'POST':
-        if formset.is_valid():
-            formset.save()
-            return redirect('detalle_paciente', paciente_id=paciente.id)
+        accion = request.POST.get('accion')
+
+        if accion == 'guardar_meds' and formset:
+            if formset.is_valid():
+                formset.save()
+                messages.success(request, "Medicamentos guardados correctamente.")
+                return redirect('detalle_paciente', paciente_id=paciente.id)
+            else:
+                print("ERRORES DEL FORMSET:")
+                for i, errors in enumerate(formset.errors):
+                    print(f"Formulario #{i}: {errors}")
+                    messages.error(request, "Error al guardar medicamentos. Revisa los campos.")
+
+        elif accion == 'guardar_evolucion' and episodio_activo:
+            form = EvolucionForm(request.POST)
+            if form.is_valid():
+                evolucion = form.save(commit=False)
+                evolucion.episodio = episodio_activo
+                evolucion.autor = request.user
+                evolucion.save()
+                messages.success(request, "Evolución guardada correctamente.")
+                return redirect('detalle_paciente', paciente_id=paciente.id)
+            else:
+                messages.error(request, "Error al guardar evolución.")
+
+    # Epicrisis: mostrar formulario solo si no hay borrador
+    hay_borrador_epicrisis = Epicrisis.objects.filter(episodio=episodio_activo, finalizado=False).exists() if episodio_activo else False
+    epicrisis_form = EpicrisisForm() if not hay_borrador_epicrisis else None
 
     context = {
         'paciente': paciente,
+        'episodio_activo': episodio_activo,
         'evoluciones': evoluciones,
+        'form': form,
+        'formset': formset,
         'epicrisis_form': epicrisis_form,
         'mostrar_formulario_epicrisis': not hay_borrador_epicrisis,
-        # 'formset': formset,  # Agregamos el formset al contexto
     }
     return render(request, 'pacientes/detalle_paciente.html', context)
-
 
 @login_required
 def exportar_pdf(request, paciente_id):
@@ -193,37 +220,41 @@ def inicio(request):
 
 
 @login_required
-
-@login_required
 def crear_epicrisis(request, paciente_id):
     paciente = get_object_or_404(Paciente, id=paciente_id)
 
-    # Verificar si ya existe una epicrisis no finalizada
-    epicrisis_existente = Epicrisis.objects.filter(paciente=paciente, finalizado=False).first()
-    if epicrisis_existente:
-        messages.warning(request, "Ya existe una epicrisis en borrador para este paciente.")
-        return redirect('detalle_paciente', paciente_id=paciente.id)  # O a donde quieras redirigir
+    # 1) Tomamos el episodio más reciente de ese paciente
+    episodio = (Episodio.objects
+                .filter(paciente=paciente)
+                .order_by('-fecha_ingreso')  # o '-id' si no tienes fecha_inicio
+                .first())
+    if not episodio:
+        messages.error(request, "Este paciente no tiene ningún episodio activo.")
+        return redirect('detalle_paciente', paciente_id)
 
-    # Si no hay borrador previo, permite crear una nueva
+    # 2) Comprobamos borradores de epicrisis para ese episodio
+    if Epicrisis.objects.filter(episodio=episodio, finalizado=False).exists():
+        messages.warning(request, "Ya existe una epicrisis en borrador para este episodio.")
+        return redirect('detalle_paciente', paciente_id)
+
+    # 3) Procesamos el formulario
     if request.method == 'POST':
         form = EpicrisisForm(request.POST)
         if form.is_valid():
             epicrisis = form.save(commit=False)
-            epicrisis.paciente = paciente
+            epicrisis.episodio = episodio
             epicrisis.autor = request.user
-            epicrisis.save()
-
             if request.POST.get('accion') == 'finalizar':
                 epicrisis.finalizado = True
-                epicrisis.save()
-
-            return redirect('detalle_paciente', paciente_id=paciente.id)
+            epicrisis.save()
+            messages.success(request, "Epicrisis creada correctamente.")
+            return redirect('detalle_paciente', paciente_id)
     else:
         form = EpicrisisForm()
 
-    return render(request, 'tu_template.html', {
+    return render(request, 'pacientes/crear_epicrisis.html', {
         'form': form,
-        'paciente': paciente
+        'paciente': paciente,
     })
 
 def editar_epicrisis(request, epicrisis_id):
@@ -341,3 +372,32 @@ def buscar_pacientes(request):
         'resultados': resultados,
         'query': query
     })
+
+def cargar_opciones_medicamento(request):
+    medicamento_id = request.GET.get('medicamento_id')
+    data = {"vias": [], "frecuencias": []}
+
+    if medicamento_id:
+        try:
+            m = MedicamentoCatalogo.objects.get(pk=medicamento_id)
+            # Usa .via y .frecuencia (ManyToMany) para obtener nombres
+            data["vias"] = list(m.via.values_list('nombre', flat=True))
+            data["frecuencias"] = list(m.frecuencia.values_list('nombre', flat=True))
+        except MedicamentoCatalogo.DoesNotExist:
+            pass
+
+    return JsonResponse(data)
+
+def obtener_datos_catalogo(request, pk):
+    try:
+        catalogo = MedicamentoCatalogo.objects.get(pk=pk)
+        data = {
+            'nombre': catalogo.nombre,
+            'dosis': catalogo.dosis,
+            'frecuencia': catalogo.frecuencia,
+            'via': catalogo.via,
+        }
+    except MedicamentoCatalogo.DoesNotExist:
+        data = {}
+
+    return JsonResponse(data)    

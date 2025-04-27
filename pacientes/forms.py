@@ -1,8 +1,8 @@
 # forms.py
 from django import forms
-from .models import Paciente, Cama, Unidad, Evolucion
+from .models import Paciente, Cama, Unidad, Evolucion, Episodio, Medicamento, MedicamentoCatalogo, Via, Frecuencia
+
 from django import forms
-from .models import Paciente, Unidad, Cama
 from django.forms import inlineformset_factory
 
 
@@ -51,8 +51,16 @@ class EvolucionForm(forms.ModelForm):
         model = Evolucion
         fields = ['contenido', 'plan_indicaciones']
         widgets = {
-            'contenido': forms.Textarea(attrs={'rows': 4, 'placeholder': 'Detalle de la evolución'}),
-            'plan_indicaciones': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Plan o indicaciones del paciente'}),
+            'contenido': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'placeholder': 'Detalle de la evolución'
+            }),
+            'plan_indicaciones': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 2,
+                'placeholder': 'Plan o indicaciones del paciente'
+            }),
         }
 
 from .models import Interconsulta, SolicitudExamen, Receta
@@ -91,16 +99,24 @@ class EpicrisisForm(forms.ModelForm):
             'indicaciones_controles': forms.Textarea(attrs={'rows': 1}),
         }
 
-# class MedicamentoForm(forms.ModelForm):
-#     class Meta:
-#         model = Medicamento
-#         fields = ['medicamento', 'frecuencia', 'duracion', 'via']
+class MedicamentoForm(forms.ModelForm):
+    class Meta:
+        model = Medicamento
+        fields = ['catalogo', 'nombre', 'dosis', 'frecuencia', 'via']
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if 'catalogo' in self.fields:
+            self.fields['catalogo'].queryset = MedicamentoCatalogo.objects.all()
+            self.fields['catalogo'].required = False
+            # Aquí agregamos los atributos de cada opción
+            self.fields['catalogo'].widget.attrs.update({'class': 'catalogo-select'})
 
-
-# MedicamentoFormSet = inlineformset_factory(
-#     Paciente, Medicamento,  # <-- asegúrate que el primer modelo es Paciente
-#     form=MedicamentoForm,
-#     extra=1,
-#     can_delete=True
-# )    
+        
+MedicamentoFormSet = inlineformset_factory(
+    Episodio, Medicamento,  # <--- CORREGIDO
+    fields=('catalogo', 'nombre', 'dosis', 'frecuencia', 'via'),
+    form=MedicamentoForm,
+    extra=1, 
+    can_delete=True
+)

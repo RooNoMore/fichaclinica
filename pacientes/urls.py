@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from pacientes.views import obtener_datos_catalogo
 
 urlpatterns = [
     path('', views.inicio, name='inicio'),  # Página principal
@@ -20,4 +21,6 @@ urlpatterns = [
     path('epicrisis/<int:epicrisis_id>/editar/', views.editar_epicrisis, name='editar_epicrisis'),
     path('pacientes/<int:paciente_id>/alta/', views.dar_de_alta_paciente, name='dar_de_alta_paciente'),
     path('buscar/', views.buscar_pacientes, name='buscar_pacientes'),
+    path('ajax/cargar-opciones-medicamento/', views.cargar_opciones_medicamento, name='cargar_opciones_medicamento'),
+    path('api/medicamento-catalogo/<int:pk>/', views.obtener_datos_catalogo, name='obtener_datos_catalogo'),
 ]

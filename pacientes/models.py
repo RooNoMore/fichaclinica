@@ -4,7 +4,7 @@ from django.dispatch import receiver
 from django.contrib.auth.models import User
 from administrador.models import PerfilUsuario
 from django.utils import timezone
-
+from django.core.exceptions import ObjectDoesNotExist
 
 class Unidad(models.Model):
     nombre = models.CharField(max_length=100)
@@ -80,11 +80,48 @@ class Evolucion(models.Model):
     contenido = models.TextField()
     plan_indicaciones = models.TextField(blank=True, null=True)
     fecha = models.DateTimeField(auto_now_add=True)
+    
+    @property
+    def autor_detallado(self):
+        if not self.autor:
+            return "Desconocido"
+
+        # 1) Intentar sacar el nombre/apellido desde PerfilUsuario
+        full_name = ""
+        try:
+            perfil = self.autor.perfilusuario  # ajusta si tu related_name es diferente
+            full_name = " ".join(filter(None, [perfil.first_name, perfil.last_name])).strip()
+        except (ObjectDoesNotExist, AttributeError):
+            pass
+
+        # 2) Si no hay nada en el perfil, usar get_full_name() de User
+        if not full_name:
+            full_name = self.autor.get_full_name().strip()
+        
+        # 3) Si sigue vacío, usar el username
+        if not full_name:
+            full_name = self.autor.username
+
+        # 4) Obtener cargo y servicio del perfil
+        cargo = servicio = None
+        try:
+            perfil = self.autor.perfilusuario
+            cargo = perfil.cargo
+            servicio = perfil.servicio
+        except (ObjectDoesNotExist, AttributeError):
+            pass
+
+        # 5) Construir lista de partes y unir en string
+        partes = [full_name]
+        if cargo:
+            partes.append(str(cargo))
+        if servicio:
+            partes.append(str(servicio))
+
+        return " — ".join(partes)
 
     def __str__(self):
-        nombre_autor = f'{self.autor.first_name} {self.autor.last_name.split()[0]} - {self.autor.perfilusuario.cargo}' if self.autor else 'Autor desconocido'
-        return f'{self.fecha.strftime("%d-%m-%Y %H:%M")} - {nombre_autor}'
-
+        return f'{self.fecha.strftime("%d/%m/%Y %H:%M")} por {self.autor_detallado}'
 # PARA LAS INTERCONSULTAS
 
 class Servicio(models.Model):
@@ -145,29 +182,33 @@ class Epicrisis(models.Model):
         return f"Epicrisis de {self.episodio.paciente.nombre} - {self.fecha_creacion.strftime('%d/%m/%Y')}"
 
 
+class MedicamentoCatalogo(models.Model):
+    nombre = models.CharField(max_length=100, unique=True)
+    via = models.ManyToManyField('Via', related_name='medicamentos')
+    frecuencia = models.ManyToManyField('Frecuencia', related_name='medicamentos')
 
+    def __str__(self):
+        return f"{self.nombre}"
 
-# class Medicamento(models.Model):
-    #   episodio = models.ForeignKey(Episodio, on_delete=models.CASCADE, related_name='medicamentos')
-#     medicamento = models.CharField(max_length=100, unique=True)
-#     frecuencia = models.CharField(max_length=100)
-#     duracion = models.CharField(max_length=100) 
-#     via = models.CharField(max_length=100)  
-#     paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE, related_name='medicamentos')
+class Via(models.Model):
+    nombre = models.CharField(max_length=50, unique=True)
 
-#     def __str__(self):
-#         return self.nombre
+    def __str__(self):
+        return self.nombre
 
+class Frecuencia(models.Model):
+    nombre = models.CharField(max_length=50, unique=True)
 
-# class MedicamentoEpicrisis(models.Model):
-#     epicrisis = models.ForeignKey(Epicrisis, related_name='medicamentos_indicados', on_delete=models.CASCADE)
-#     medicamento = models.ForeignKey(Medicamento, on_delete=models.PROTECT)
-#     frecuencia = models.CharField(max_length=100)
-#     duracion = models.CharField(max_length=100)
-#     via = models.CharField(max_length=100)
+    def __str__(self):
+        return self.nombre
 
-#     def __str__(self):
-        # return f"{self.medicamento.nombre} - {self.frecuencia}, {self.duracion}, {self.via}"
+class Medicamento(models.Model):
+    episodio = models.ForeignKey('Episodio', related_name='medicamentos', on_delete=models.CASCADE)
+    catalogo = models.ForeignKey(MedicamentoCatalogo, on_delete=models.SET_NULL, null=True, blank=True)
+    nombre = models.CharField(max_length=100)
+    dosis = models.CharField(max_length=100)
+    frecuencia = models.CharField(max_length=100)
+    via = models.CharField(max_length=50)
 
-
-        
+    def __str__(self):
+        return f"{self.nombre} ({self.dosis}, {self.frecuencia}, vía {self.via})"

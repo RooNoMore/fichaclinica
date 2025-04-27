@@ -7,6 +7,7 @@
 
 {% block content %}
 <h2>{{ paciente.nombre }}</h2>
+
 <div class="card bg-light mb-3 p-3 shadow-sm">
     <div class="row">
         <div class="col-md-4">
@@ -24,44 +25,12 @@
     </div>
 </div>
 
-<h3>Medicamentos</h3>
 
-{% comment %} <form method="post">
-    {% csrf_token %}
-    {{ formset.management_form }}
-    <table>
-        <thead>
-            <tr>
-                <th>Nombre</th>
-                <th>Dosis</th>
-                <th>Frecuencia</th>
-                <th>Eliminar</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for form in formset %}
-                <tr>
-                    <td>{{ form.medicamento }}</td>
-                    <td>{{ form.frecuencia }}</td>
-                    <td>{{ form.via }}</td>
-                    <td>{{ form.duracion }}</td>
-                    <td>
-                        {% if form.can_delete %}
-                            {{ form.DELETE }}
-                        {% endif %}
-                    </td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    <button type="submit">Guardar medicamentos</button>
-</form> {% endcomment %}
 
-<hr>
 {% if paciente.hospitalizado %}
 <form method="post" action="{% url 'dar_de_alta_paciente' paciente.id %}">
-  {% csrf_token %}
-  <button type="submit" class="btn btn-danger">Dar de Alta</button>
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Dar de Alta</button>
 </form>
 {% else %}
 <p><strong>Paciente dado de alta el {{ paciente.fecha_egreso|date:"d/m/Y H:i" }}</strong></p>
@@ -89,30 +58,55 @@
     <div class="tab-content mt-3" id="miTabContent">
 
         <!-- Evoluciones -->
-        <!-- Evoluciones -->
         <div class="tab-pane fade show active" id="evoluciones">
-            <!-- Formulario para nueva evolución -->
-            <form method="POST">
-             {% csrf_token %}
-                {{ form.as_p }}
-                <button type="submit">Agregar Evolución</button>
-            </form>
-            {% for evo in evoluciones %}
-                <p><strong>{{ evo.fecha|date:"d/m/Y H:i" }}</strong> por {{ evo.autor }}:</p>
-                <p>{{ evo.contenido|linebreaks }}</p>
-                {% if evo.plan_indicaciones %}
-                    <p><strong>Plan/Indicaciones:</strong><br>{{ evo.plan_indicaciones|linebreaks }}</p>
-                {% endif %}
-                <hr>
-            {% empty %}
-                <p>No hay evoluciones aún.</p>
-            {% endfor %}
+            <!-- Formulario nueva evolución en una card -->
+  <div class="card mb-4 shadow-sm">
+    <div class="card-header">
+      <h5 class="mb-0">Agregar Nueva Evolución</h5>
+    </div>
+    <div class="card-body">
+      <form method="post" id="form-evolucion">
+        {% csrf_token %}
+        <input type="hidden" name="accion" value="guardar_evolucion">
+
+        <div class="mb-3">
+          {{ form.contenido.label_tag }}
+          {{ form.contenido }}
         </div>
+
+        <div class="mb-3">
+          {{ form.plan_indicaciones.label_tag }}
+          {{ form.plan_indicaciones }}
+        </div>
+
+        <button type="submit" class="btn btn-primary">Agregar Evolución</button>
+      </form>
+    </div>
+  </div>
+          
+            {% for evo in evoluciones %}
+              <div class="card mb-3 shadow-sm">
+                <div class="card-header d-flex justify-content-between">
+                  <small class="text-muted">{{ evo.fecha|date:"d/m/Y H:i" }}</small>
+                  <small class="text-muted">por {{ evo.autor_detallado }}</small>
+                </div>
+                <div class="card-body">
+                  <p class="card-text">{{ evo.contenido|linebreaks }}</p>
+                  {% if evo.plan_indicaciones %}
+                    <hr>
+                    <h6 class="card-subtitle mb-2 text-secondary">Plan / Indicaciones</h6>
+                    <p class="card-text">{{ evo.plan_indicaciones|linebreaks }}</p>
+                  {% endif %}
+                </div>
+              </div>
+            {% empty %}
+              <div class="alert alert-info">No hay evoluciones aún.</div>
+            {% endfor %}
+          </div>
 
         <!-- Interconsultas -->
         <div class="tab-pane fade" id="interconsulta">
             <p><a href="{% url 'crear_interconsulta' paciente.id %}" class="btn btn-primary mb-3">Solicitar Interconsulta</a></p>
-
             {% if paciente.interconsultas.all %}
                 {% for inter in paciente.interconsultas.all %}
                     <div class="card mb-2">
@@ -139,7 +133,6 @@
         <!-- Exámenes -->
         <div class="tab-pane fade" id="examenes">
             <p><a href="{% url 'solicitar_examenes' paciente.id %}" class="btn btn-primary mb-3">Solicitar Exámenes</a></p>
-
             {% if paciente.solicitudes_examenes.all %}
                 {% for examen in paciente.solicitudes_examenes.all %}
                     <div class="card mb-2">
@@ -156,9 +149,84 @@
         </div>
 
         <!-- Recetas -->
+       
+       
         <div class="tab-pane fade" id="receta">
-            <p><a href="{% url 'crear_receta' paciente.id %}" class="btn btn-primary mb-3">Crear Receta</a></p>
+            <h3>Medicamentos</h3>
 
+        {% if episodio_activo %}
+        <form method="post" action="" id="form-medicamentos">
+            {% csrf_token %}
+            <input type="hidden" name="accion" value="guardar_meds">
+            {{ formset.management_form }}
+            {% if formset.non_form_errors %}
+            <div class="alert alert-danger">
+                {{ formset.non_form_errors }}
+            </div>
+        {% endif %}
+           
+        
+            <table id="medicamentos-table" class="table table-striped table-bordered">
+                <thead class="table-light">
+                    <tr>
+                        <th>Catálogo</th> <!-- Nueva columna -->
+                        <th>Nombre</th>
+                        <th>Dosis</th>
+                        <th>Frecuencia</th>
+                        <th>Vía</th>
+                        <th>Eliminar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for form in formset %}
+                        <tr class="form-row">
+                            {{ form.id }}
+                            <td>{{ form.catalogo }}</td>
+                            <td>{{ form.nombre }}</td>
+                            <td>{{ form.dosis }}</td>
+                            <td>{{ form.frecuencia }}</td>
+                            <td>{{ form.via }}</td>
+                            <td>
+                                {% if form.instance.pk %}
+                                    {{ form.DELETE }}
+                                {% else %}
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                </tbody>
+            </table>
+            <div class="mb-3">
+                <button type="submit" class="btn btn-success btn-sm">Guardar Medicamentos</button>
+            </div>
+        </form>
+        {% else %}
+        <p><strong>Paciente sin episodio activo.</strong></p>
+        {% endif %}
+        
+        <h5>Medicamentos guardados</h5>
+        {% if episodio_activo.medicamentos.exists %}
+            <ul class="list-group mb-4">
+                {% for med in episodio_activo.medicamentos.all %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>{{ med.nombre }}</strong> –
+                            {{ med.dosis }}, {{ med.frecuencia }}, vía {{ med.via }}
+                        </div>
+                        <span class="badge bg-secondary">{{ med.fecha_creacion|date:"d/m/Y H:i" }}</span>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="text-muted">No hay medicamentos registrados aún para este episodio.</p>
+        {% endif %}
+        
+        
+        <hr>
+
+
+
+            <p><a href="{% url 'crear_receta' paciente.id %}" class="btn btn-primary mb-3">Crear Receta</a></p>
             {% if paciente.recetas.all %}
                 {% for receta in paciente.recetas.all %}
                     <div class="card mb-2">
@@ -174,45 +242,147 @@
             {% endif %}
         </div>
 
-
         <!-- Epicrisis -->
-<div class="tab-pane fade" id="epicrisis" role="tabpanel">
-    {% if mostrar_formulario_epicrisis %}
-        <h2>Crear Epicrisis</h2>
-        <form method="post" action="{% url 'crear_epicrisis' paciente.id %}">
-            {% csrf_token %}
-            {{ epicrisis_form.as_p }}
-            <button type="submit" name="accion" value="guardar">Guardar</button>
-            <button type="submit" name="accion" value="finalizar">Finalizar</button>
-        </form>
-        {% else %}
-        <p><strong>Ya existe una epicrisis en borrador para este paciente.</strong></p>
-    {% endif %}
+        <div class="tab-pane fade" id="epicrisis" role="tabpanel">
 
-    <hr class="my-4">
-
-    <h5 class="mb-3">Epicrisis anteriores</h5>
-    {% if paciente.epicrisis_set.exists %}
-        {% for e in paciente.epicrisis_set.all %}
-            <div class="card mb-2">
-                <div class="card-body">
-                    <p><strong>Fecha:</strong> {{ e.fecha_creacion|date:"d/m/Y H:i" }}</p>
-                    <p><strong>Diagnóstico de egreso:</strong> {{ e.diagnostico_egreso }}</p>
-                    <p><strong>Indicaciones:</strong> {{ e.indicaciones_alta }}</p>
-                    <p><strong>Médico:</strong> {{ e.autor }}</p>
-                    {% if e.finalizado %}
-                        <a href="{% url 'exportar_epicrisis_pdf' e.id %}" class="btn btn-outline-primary btn-sm">Ver PDF</a>
-                    {% else %}
-                        <a href="{% url 'editar_epicrisis' e.id %}" class="btn btn-outline-warning btn-sm">Editar borrador</a>
-                    {% endif %}
+            {# 1) Si hay un borrador lo tomamos de epicrisis_borrador #}
+            {% if epicrisis_borrador %}
+              <div class="alert alert-warning d-flex align-items-center justify-content-between">
+                <span>Ya existe una epicrisis en borrador para este paciente.</span>
+                <a href="{% url 'editar_epicrisis' epicrisis_borrador.id %}"
+                   class="btn btn-sm btn-outline-warning">
+                  Editar borrador
+                </a>
+              </div>
+          
+            {# 2) Si no hay borrador, mostramos el formulario de creación #}
+            {% else %}
+              <div class="card mb-4 shadow-sm">
+                <div class="card-header bg-white">
+                  <h5 class="mb-0">Crear Epicrisis</h5>
                 </div>
-            </div>
-        {% endfor %}
-    {% else %}
-        <p>No hay epicrisis registradas para este paciente.</p>
-    {% endif %}
-</div>
-        
+                <div class="card-body">
+                  <form method="post" action="{% url 'crear_epicrisis' paciente.id %}">
+                    {% csrf_token %}
+                    {{ epicrisis_form.as_p }}
+          
+                    <button type="submit" name="accion" value="guardar"
+                            class="btn btn-primary btn-sm">
+                      Guardar
+                    </button>
+                    <button type="submit" name="accion" value="finalizar"
+                            class="btn btn-success btn-sm">
+                      Finalizar
+                    </button>
+                  </form>
+                </div>
+              </div>
+            {% endif %}
+          
+            <hr class="my-4">
+          
+            <h5 class="mb-3">Epicrisis anteriores</h5>
+            {# 3) Sólo las finalizadas #}
+            {% with paciente.epicrisis_set.all|dictsort:"-fecha_creacion" as todas_epicrisis %}
+              {% if todas_epicrisis %}
+                {% for e in todas_epicrisis %}
+                  {% if e.finalizado %}
+                    <div class="card mb-2 shadow-sm">
+                      <div class="card-body">
+                        <div class="d-flex justify-content-between mb-2">
+                          <small class="text-muted">{{ e.fecha_creacion|date:"d/m/Y H:i" }}</small>
+                          <small class="text-muted">{{ e.autor_detallado }}</small>
+                        </div>
+                        <p><strong>Diagnóstico de egreso:</strong><br>{{ e.diagnostico_egreso|linebreaks }}</p>
+                        {% if e.indicaciones_generales %}
+                          <p><strong>Indicaciones generales:</strong><br>{{ e.indicaciones_generales|linebreaks }}</p>
+                        {% endif %}
+                        <a href="{% url 'exportar_epicrisis_pdf' e.id %}"
+                           class="btn btn-outline-primary btn-sm">
+                          Ver PDF
+                        </a>
+                      </div>
+                    </div>
+                  {% endif %}
+                {% endfor %}
+              {% else %}
+                <p class="text-muted">No hay epicrisis registradas para este paciente.</p>
+              {% endif %}
+            {% endwith %}
+          
+          </div>
+
     </div>
 </div>
+
+{% load static %}
+{% url 'cargar_opciones_medicamento' as url_ajax_opciones %}
+<!-- Script para clonar dinámicamente -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const table = document.getElementById('medicamentos-table');
+      const endpoint = "{{ url_ajax_opciones }}";  
+    
+      table.addEventListener('change', function(e) {
+        const target = e.target;
+        if (!target.name.endsWith('-catalogo')) return;
+    
+        const catalogoId = target.value;
+        const row = target.closest('tr');
+        const viaField = row.querySelector('[name$="-via"]');
+        const freqField = row.querySelector('[name$="-frecuencia"]');
+    
+        // Si quitas selección, restauramos inputs de texto vacíos
+        if (!catalogoId) {
+          [viaField, freqField].forEach(field => {
+            const input = document.createElement('input');
+            input.name = field.name;
+            input.classList.add('form-control');
+            input.value = '';
+            field.replaceWith(input);
+          });
+          return;
+        }
+    
+        // AJAX a la URL dinámica
+        fetch(`${endpoint}?medicamento_id=${catalogoId}`)
+          .then(r => r.json())
+          .then(data => {
+            // Reconstruir select de Vía
+            const viaSelect = document.createElement('select');
+            viaSelect.name = viaField.name;
+            viaSelect.classList.add('form-control');
+            data.vias.forEach(v => {
+              const opt = document.createElement('option');
+              opt.value = v;
+              opt.textContent = v;
+              viaSelect.appendChild(opt);
+            });
+            viaField.replaceWith(viaSelect);
+    
+            // Reconstruir select de Frecuencia
+            const freqSelect = document.createElement('select');
+            freqSelect.name = freqField.name;
+            freqSelect.classList.add('form-control');
+            data.frecuencias.forEach(f => {
+              const opt = document.createElement('option');
+              opt.value = f;
+              opt.textContent = f;
+              freqSelect.appendChild(opt);
+            });
+            freqField.replaceWith(freqSelect);
+          })
+          .catch(() => console.error('Error cargando vías/frecuencias'));
+      });
+    
+      // Dispara change en selects de catálogo ya con valor
+      table.querySelectorAll('select[name$="-catalogo"]').forEach(select => {
+        if (select.value) {
+          select.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+      });
+    });
+    </script>
+
+    
 {% endblock %}
