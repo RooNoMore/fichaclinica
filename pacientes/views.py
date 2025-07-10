@@ -236,9 +236,13 @@ def crear_epicrisis(request, paciente_id):
         messages.error(request, "Este paciente no tiene ningún episodio activo.")
         return redirect('detalle_paciente', paciente_id)
 
-    # 2) Comprobamos borradores de epicrisis para ese episodio
-    if Epicrisis.objects.filter(episodio=episodio, finalizado=False).exists():
-        messages.warning(request, "Ya existe una epicrisis en borrador para este episodio.")
+    # 2) Validamos si ya existe una epicrisis asociada al episodio
+    existing_epicrisis = Epicrisis.objects.filter(episodio=episodio).first()
+    if existing_epicrisis:
+        if existing_epicrisis.finalizado:
+            messages.warning(request, "Ya existe una epicrisis finalizada para este episodio.")
+        else:
+            messages.warning(request, "Ya existe una epicrisis en borrador para este episodio.")
         return redirect('detalle_paciente', paciente_id)
 
     # 3) Procesamos el formulario
