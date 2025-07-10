@@ -1,6 +1,17 @@
 # forms.py
 from django import forms
-from .models import Paciente, Cama, Unidad, Evolucion, Episodio, Medicamento, MedicamentoCatalogo, Via, Frecuencia
+from .models import (
+    Paciente,
+    Cama,
+    Unidad,
+    Evolucion,
+    Episodio,
+    Medicamento,
+    MedicamentoCatalogo,
+    Via,
+    Frecuencia,
+    Antecedente,
+)
 
 from django import forms
 from django.forms import inlineformset_factory
@@ -79,6 +90,12 @@ class RecetaForm(forms.ModelForm):
     class Meta:
         model = Receta
         fields = ['medicamento', 'dosis', 'frecuencia', 'duracion', 'indicaciones_extra']
+
+
+class AntecedenteForm(forms.ModelForm):
+    class Meta:
+        model = Antecedente
+        fields = ['tipo', 'descripcion']
 
 
 from .models import Epicrisis

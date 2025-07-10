@@ -216,3 +216,20 @@ class Medicamento(models.Model):
 
     def __str__(self):
         return f"{self.nombre} ({self.dosis}, {self.frecuencia}, vía {self.via})"
+
+
+class Antecedente(models.Model):
+    TIPO_CHOICES = [
+        ("morbido", "Mórbido"),
+        ("quirurgico", "Quirúrgico"),
+        ("alergia", "Alergia"),
+        ("familiar", "Familiar"),
+        ("otro", "Otro"),
+    ]
+
+    paciente = models.ForeignKey(Paciente, related_name="antecedentes", on_delete=models.CASCADE)
+    tipo = models.CharField(max_length=20, choices=TIPO_CHOICES)
+    descripcion = models.TextField()
+
+    def __str__(self):
+        return f"{self.get_tipo_display()}: {self.descripcion}"

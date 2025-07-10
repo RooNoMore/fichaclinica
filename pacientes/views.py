@@ -17,12 +17,26 @@ from django.utils.timezone import now
 
 # Locales (de tu app)
 from .forms import (
-    EvolucionForm, InterconsultaForm, PacienteForm,
-    RecetaForm, SolicitudExamenForm, EpicrisisForm, MedicamentoFormSet
+    EvolucionForm,
+    InterconsultaForm,
+    PacienteForm,
+    RecetaForm,
+    SolicitudExamenForm,
+    EpicrisisForm,
+    MedicamentoFormSet,
+    AntecedenteForm,
 )
 from .models import (
-    Cama, Epicrisis, Evolucion, Interconsulta,
-    Paciente, Servicio, Unidad, Episodio, MedicamentoCatalogo
+    Cama,
+    Epicrisis,
+    Evolucion,
+    Interconsulta,
+    Paciente,
+    Servicio,
+    Unidad,
+    Episodio,
+    MedicamentoCatalogo,
+    Antecedente,
 )
 
 @login_required
@@ -72,6 +86,8 @@ def detalle_paciente(request, paciente_id):
 
     form = EvolucionForm()
     formset = MedicamentoFormSet(request.POST or None, instance=episodio_activo) if episodio_activo else None
+    antecedente_form = AntecedenteForm()
+    antecedentes = paciente.antecedentes.all()
 
     if request.method == 'POST':
         accion = request.POST.get('accion')
@@ -98,6 +114,16 @@ def detalle_paciente(request, paciente_id):
                 return redirect('detalle_paciente', paciente_id=paciente.id)
             else:
                 messages.error(request, "Error al guardar evolución.")
+        elif accion == 'guardar_antecedente':
+            antecedente_form = AntecedenteForm(request.POST)
+            if antecedente_form.is_valid():
+                antecedente = antecedente_form.save(commit=False)
+                antecedente.paciente = paciente
+                antecedente.save()
+                messages.success(request, "Antecedente guardado correctamente.")
+                return redirect('detalle_paciente', paciente_id=paciente.id)
+            else:
+                messages.error(request, "Error al guardar antecedente.")
 
     # Epicrisis: obtener la epicrisis del episodio activo, si existe
     epicrisis_existente = None
@@ -113,6 +139,8 @@ def detalle_paciente(request, paciente_id):
         'evoluciones': evoluciones,
         'form': form,
         'formset': formset,
+        'antecedente_form': antecedente_form,
+        'antecedentes': antecedentes,
         'epicrisis_form': epicrisis_form,
         'epicrisis_existente': epicrisis_existente,
     }
