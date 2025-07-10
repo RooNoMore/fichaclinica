@@ -89,6 +89,11 @@ def detalle_paciente(request, paciente_id):
     formset = MedicamentoFormSet(request.POST or None, instance=episodio_activo) if episodio_activo else None
     antecedentes_form = AntecedentesPacienteForm()
     antecedentes = paciente.antecedentes.all()
+    antecedentes_por_tipo = {
+        tipo: antecedentes.filter(tipo=tipo)
+        for tipo, _ in Antecedente.TIPO_CHOICES
+    }
+    tipo_labels = {tipo: label for tipo, label in Antecedente.TIPO_CHOICES}
 
     if request.method == 'POST':
         accion = request.POST.get('accion')
@@ -147,6 +152,8 @@ def detalle_paciente(request, paciente_id):
         'formset': formset,
         'antecedente_form': antecedentes_form,
         'antecedentes': antecedentes,
+        'antecedentes_por_tipo': antecedentes_por_tipo,
+        'tipo_labels': tipo_labels,
         'epicrisis_form': epicrisis_form,
         'epicrisis_existente': epicrisis_existente,
     }
