@@ -99,9 +99,13 @@ def detalle_paciente(request, paciente_id):
             else:
                 messages.error(request, "Error al guardar evolución.")
 
-    # Epicrisis: mostrar formulario solo si no hay borrador
-    hay_borrador_epicrisis = Epicrisis.objects.filter(episodio=episodio_activo, finalizado=False).exists() if episodio_activo else False
-    epicrisis_form = EpicrisisForm() if not hay_borrador_epicrisis else None
+    # Epicrisis: obtener borrador del episodio activo, si existe
+    epicrisis_borrador = None
+    if episodio_activo:
+        epicrisis_borrador = Epicrisis.objects.filter(
+            episodio=episodio_activo, finalizado=False
+        ).first()
+    epicrisis_form = EpicrisisForm() if not epicrisis_borrador else None
 
     context = {
         'paciente': paciente,
@@ -110,7 +114,7 @@ def detalle_paciente(request, paciente_id):
         'form': form,
         'formset': formset,
         'epicrisis_form': epicrisis_form,
-        'mostrar_formulario_epicrisis': not hay_borrador_epicrisis,
+        'epicrisis_borrador': epicrisis_borrador,
     }
     return render(request, 'pacientes/detalle_paciente.html', context)
 
