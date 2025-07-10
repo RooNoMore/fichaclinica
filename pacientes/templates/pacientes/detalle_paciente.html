@@ -42,6 +42,9 @@
             <a class="nav-link active" id="evoluciones-tab" data-bs-toggle="tab" href="#evoluciones">Todas las Evoluciones</a>
         </li>
         <li class="nav-item">
+            <a class="nav-link" id="antecedentes-tab" data-bs-toggle="tab" href="#antecedentes">Antecedentes</a>
+        </li>
+        <li class="nav-item">
             <a class="nav-link" id="interconsulta-tab" data-bs-toggle="tab" href="#interconsulta">Interconsultas</a>
         </li>
         <li class="nav-item">
@@ -102,7 +105,34 @@
             {% empty %}
               <div class="alert alert-info">No hay evoluciones aún.</div>
             {% endfor %}
-          </div>
+        </div>
+
+        <!-- Antecedentes -->
+        <div class="tab-pane fade" id="antecedentes">
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header">
+                    <h5 class="mb-0">Agregar Antecedente</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="accion" value="guardar_antecedente">
+                        {{ antecedente_form.as_p }}
+                        <button type="submit" class="btn btn-primary btn-sm">Agregar</button>
+                    </form>
+                </div>
+            </div>
+
+            {% for ant in antecedentes %}
+                <div class="card mb-2">
+                    <div class="card-body">
+                        <strong>{{ ant.get_tipo_display }}:</strong> {{ ant.descripcion }}
+                    </div>
+                </div>
+            {% empty %}
+                <p class="text-muted">No hay antecedentes registrados.</p>
+            {% endfor %}
+        </div>
 
         <!-- Interconsultas -->
         <div class="tab-pane fade" id="interconsulta">
