@@ -21,7 +21,6 @@ from .forms import (
     InterconsultaForm,
     PacienteForm,
     RecetaForm,
-    RecetaPDFForm,
     SolicitudExamenForm,
     EpicrisisForm,
     MedicamentoFormSet,
@@ -245,33 +244,18 @@ def solicitar_examenes(request, paciente_id):
 @login_required
 def crear_receta(request, paciente_id):
     paciente = get_object_or_404(Paciente, id=paciente_id)
-    episodio_activo = paciente.episodios.filter(fecha_egreso__isnull=True).first()
-    medicamentos = episodio_activo.medicamentos.all() if episodio_activo else []
-
     if request.method == 'POST':
-        form = RecetaPDFForm(request.POST)
+        form = RecetaForm(request.POST)
         if form.is_valid():
-            dias = form.cleaned_data.get('dias_tratamiento')
-            context = {
-                'paciente': paciente,
-                'edad': paciente.edad(),
-                'dias_tratamiento': dias,
-                'medicamentos': medicamentos,
-                'logo_url': request.build_absolute_uri(static('img/logo.png')),
-            }
-            html_string = render_to_string('pacientes/receta_pdf.html', context)
-            pdf = HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf()
-            response = HttpResponse(pdf, content_type='application/pdf')
-            response['Content-Disposition'] = f'attachment; filename="receta_{paciente.id}.pdf"'
-            return response
+            receta = form.save(commit=False)
+            receta.paciente = paciente
+            receta.medico = request.user.perfilusuario
+            receta.save()
+            return redirect('detalle_paciente', paciente_id=paciente_id)
     else:
-        form = RecetaPDFForm()
+        form = RecetaForm()
 
-    return render(request, 'pacientes/crear_receta.html', {
-        'form': form,
-        'paciente': paciente,
-        'medicamentos': medicamentos,
-    })
+    return render(request, 'pacientes/crear_receta.html', {'form': form, 'paciente': paciente})
 
 @login_required
 def inicio(request):
