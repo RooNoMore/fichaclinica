@@ -4,7 +4,8 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 
 from administrador.models import PerfilUsuario
-from pacientes.models import Paciente, Episodio, Epicrisis
+from django.urls import reverse
+from pacientes.models import Paciente, Episodio, Epicrisis, Antecedente
 
 
 class PacienteEdadTests(TestCase):
@@ -39,4 +40,26 @@ class EpicrisisPacientePropertyTests(TestCase):
         )
 
         self.assertEqual(epicrisis.paciente, paciente)
+
+
+class EpicrisisAntecedentesTests(TestCase):
+    def test_ver_epicrisis_incluye_antecedentes_paciente(self):
+        paciente = Paciente.objects.create(nombre="AnteTest")
+        episodio = Episodio.objects.create(paciente=paciente)
+        Epicrisis.objects.create(
+            episodio=episodio,
+            diagnostico_egreso="dg",
+            comentario_evolucion="c",
+        )
+        Antecedente.objects.create(paciente=paciente, tipo="morbido", descripcion="HTA")
+        Antecedente.objects.create(paciente=paciente, tipo="quirurgico", descripcion="Apendicectomía")
+
+        user = User.objects.create_user(username="u", password="pw")
+        self.client.login(username="u", password="pw")
+
+        epicrisis = episodio.epicrisis
+        url = reverse('ver_epicrisis', args=[epicrisis.id])
+        response = self.client.get(url)
+        self.assertContains(response, "HTA")
+        self.assertContains(response, "Apendicectomía")
 
