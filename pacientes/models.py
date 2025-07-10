@@ -181,6 +181,10 @@ class Epicrisis(models.Model):
     def __str__(self):
         return f"Epicrisis de {self.episodio.paciente.nombre} - {self.fecha_creacion.strftime('%d/%m/%Y')}"
 
+    @property
+    def paciente(self):
+        return self.episodio.paciente
+
 
 class MedicamentoCatalogo(models.Model):
     nombre = models.CharField(max_length=100, unique=True)

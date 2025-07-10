@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 
 from administrador.models import PerfilUsuario
-from .models import Paciente
+from pacientes.models import Paciente, Episodio, Epicrisis
 
 
 class PacienteEdadTests(TestCase):
@@ -26,4 +26,17 @@ class PerfilUsuarioSignalTests(TestCase):
     def test_creacion_automatica_perfil_usuario(self):
         user = User.objects.create_user(username="jdoe", password="secret")
         self.assertTrue(PerfilUsuario.objects.filter(user=user).exists())
+
+
+class EpicrisisPacientePropertyTests(TestCase):
+    def test_epicrisis_paciente_property(self):
+        paciente = Paciente.objects.create(nombre="PropTest")
+        episodio = Episodio.objects.create(paciente=paciente)
+        epicrisis = Epicrisis.objects.create(
+            episodio=episodio,
+            diagnostico_egreso="dg",
+            comentario_evolucion="c",
+        )
+
+        self.assertEqual(epicrisis.paciente, paciente)
 
