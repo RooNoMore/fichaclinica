@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: Arial, sans-serif; font-size: 12pt; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #000; padding: 4px; text-align: left; }
+    </style>
+</head>
+<body>
+    <div style="text-align:center;">
+        <img src="{{ logo_url }}" alt="Logo" style="height:60px;">
+        <h2>Receta Médica</h2>
+    </div>
+    <p><strong>Nombre:</strong> {{ paciente.nombre }}</p>
+    <p><strong>Edad:</strong> {{ edad }}</p>
+    <p><strong>RUT:</strong> {{ paciente.rut }}</p>
+    <p><strong>Ficha:</strong> {{ paciente.ficha }}</p>
+    <p><strong>Diagnóstico de ingreso:</strong> {{ paciente.diagnostico }}</p>
+    <p><strong>Cama:</strong> {{ paciente.cama.numero|default:"" }}</p>
+    {% if dias_tratamiento %}
+    <p><strong>Días de tratamiento:</strong> {{ dias_tratamiento }}</p>
+    {% endif %}
+    <table>
+        <thead>
+            <tr>
+                <th>Medicamento</th>
+                <th>Dosis</th>
+                <th>Frecuencia</th>
+                <th>Vía</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for med in medicamentos %}
+            <tr>
+                <td>{{ med.nombre }}</td>
+                <td>{{ med.dosis }}</td>
+                <td>{{ med.frecuencia }}</td>
+                <td>{{ med.via }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
