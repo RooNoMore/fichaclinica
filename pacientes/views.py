@@ -25,6 +25,7 @@ from .forms import (
     EpicrisisForm,
     MedicamentoFormSet,
     AntecedenteForm,
+    AntecedentesPacienteForm,
 )
 from .models import (
     Cama,
@@ -86,7 +87,7 @@ def detalle_paciente(request, paciente_id):
 
     form = EvolucionForm()
     formset = MedicamentoFormSet(request.POST or None, instance=episodio_activo) if episodio_activo else None
-    antecedente_form = AntecedenteForm()
+    antecedentes_form = AntecedentesPacienteForm()
     antecedentes = paciente.antecedentes.all()
 
     if request.method == 'POST':
@@ -115,12 +116,17 @@ def detalle_paciente(request, paciente_id):
             else:
                 messages.error(request, "Error al guardar evolución.")
         elif accion == 'guardar_antecedente':
-            antecedente_form = AntecedenteForm(request.POST)
-            if antecedente_form.is_valid():
-                antecedente = antecedente_form.save(commit=False)
-                antecedente.paciente = paciente
-                antecedente.save()
-                messages.success(request, "Antecedente guardado correctamente.")
+            antecedentes_form = AntecedentesPacienteForm(request.POST)
+            if antecedentes_form.is_valid():
+                for tipo in ['morbido', 'quirurgico', 'alergia', 'familiar', 'otro']:
+                    desc = antecedentes_form.cleaned_data.get(tipo)
+                    if desc:
+                        Antecedente.objects.create(
+                            paciente=paciente,
+                            tipo=tipo,
+                            descripcion=desc
+                        )
+                messages.success(request, "Antecedentes guardados correctamente.")
                 return redirect('detalle_paciente', paciente_id=paciente.id)
             else:
                 messages.error(request, "Error al guardar antecedente.")
@@ -139,7 +145,7 @@ def detalle_paciente(request, paciente_id):
         'evoluciones': evoluciones,
         'form': form,
         'formset': formset,
-        'antecedente_form': antecedente_form,
+        'antecedente_form': antecedentes_form,
         'antecedentes': antecedentes,
         'epicrisis_form': epicrisis_form,
         'epicrisis_existente': epicrisis_existente,
@@ -325,6 +331,10 @@ def exportar_epicrisis_pdf(request, epicrisis_id):
     epicrisis = get_object_or_404(Epicrisis, id=epicrisis_id)
     paciente = epicrisis.paciente
 
+    antecedentes = paciente.antecedentes.all()
+    def _join(tipo):
+        return ', '.join(a.descripcion for a in antecedentes.filter(tipo=tipo))
+
     context = {
         'paciente': paciente,
         'rut': getattr(paciente, 'rut', ''),
@@ -335,9 +345,9 @@ def exportar_epicrisis_pdf(request, epicrisis_id):
         'ficha': paciente.ficha,
         'logo_url': request.build_absolute_uri(static('img/logo.png')),
         'mdtte': str(epicrisis.autor),
-        'AM': getattr(epicrisis, 'am', ''),
-        'AQx': getattr(epicrisis, 'aqx', ''),
-        'Alergias': getattr(epicrisis, 'alergias', ''),
+        'AM': _join('morbido'),
+        'AQx': _join('quirurgico'),
+        'Alergias': _join('alergia'),
         'Fcos': getattr(epicrisis, 'fcos', ''),
         'ingreso': getattr(epicrisis, 'ingreso', ''),
         'LabIngreso': getattr(epicrisis, 'lab_ingreso', ''),
@@ -364,6 +374,10 @@ def ver_epicrisis(request, epicrisis_id):
     epicrisis = get_object_or_404(Epicrisis, id=epicrisis_id)
     paciente = epicrisis.paciente
 
+    antecedentes = paciente.antecedentes.all()
+    def _join(tipo):
+        return ', '.join(a.descripcion for a in antecedentes.filter(tipo=tipo))
+
     context = {
         'paciente': paciente,
         'rut': getattr(paciente, 'rut', ''),
@@ -374,9 +388,9 @@ def ver_epicrisis(request, epicrisis_id):
         'ficha': paciente.ficha,
         'logo_url': request.build_absolute_uri(static('img/logo.png')),
         'mdtte': str(epicrisis.autor),
-        'AM': getattr(epicrisis, 'am', ''),
-        'AQx': getattr(epicrisis, 'aqx', ''),
-        'Alergias': getattr(epicrisis, 'alergias', ''),
+        'AM': _join('morbido'),
+        'AQx': _join('quirurgico'),
+        'Alergias': _join('alergia'),
         'Fcos': getattr(epicrisis, 'fcos', ''),
         'ingreso': getattr(epicrisis, 'ingreso', ''),
         'LabIngreso': getattr(epicrisis, 'lab_ingreso', ''),

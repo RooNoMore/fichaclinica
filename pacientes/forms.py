@@ -98,6 +98,34 @@ class AntecedenteForm(forms.ModelForm):
         fields = ['tipo', 'descripcion']
 
 
+class AntecedentesPacienteForm(forms.Form):
+    morbido = forms.CharField(
+        required=False,
+        widget=forms.Textarea(attrs={'rows': 2}),
+        label="Antecedentes mórbidos"
+    )
+    quirurgico = forms.CharField(
+        required=False,
+        widget=forms.Textarea(attrs={'rows': 2}),
+        label="Antecedentes quirúrgicos"
+    )
+    alergia = forms.CharField(
+        required=False,
+        widget=forms.Textarea(attrs={'rows': 2}),
+        label="Alergias"
+    )
+    familiar = forms.CharField(
+        required=False,
+        widget=forms.Textarea(attrs={'rows': 2}),
+        label="Antecedentes familiares"
+    )
+    otro = forms.CharField(
+        required=False,
+        widget=forms.Textarea(attrs={'rows': 2}),
+        label="Otros antecedentes"
+    )
+
+
 from .models import Epicrisis
 
 class EpicrisisForm(forms.ModelForm):
