@@ -319,7 +319,7 @@ def exportar_epicrisis_pdf(request, epicrisis_id):
         'dgegreso': epicrisis.diagnostico_egreso,
         'indicacionesSegunDgPH': epicrisis.indicaciones_generales,
         'indicacionesControles': epicrisis.indicaciones_controles,
-        'medicamentos': epicrisis.medicamentos_indicados.all(),
+        'medicamentos': epicrisis.episodio.medicamentos.all(),
         'peso': getattr(epicrisis, 'peso', ''),
     }
 
