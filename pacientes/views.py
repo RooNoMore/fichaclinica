@@ -268,8 +268,8 @@ def crear_epicrisis(request, paciente_id):
 def editar_epicrisis(request, epicrisis_id):
     epicrisis = get_object_or_404(Epicrisis, id=epicrisis_id)
 
-    if epicrisis.finalizado:
-        messages.warning(request, "No se puede editar una epicrisis ya finalizada.")
+    if epicrisis.finalizado and not epicrisis.paciente.hospitalizado:
+        messages.warning(request, "No se puede editar una epicrisis de un paciente dado de alta.")
         return redirect('detalle_paciente', paciente_id=epicrisis.paciente.id)
 
     if request.method == 'POST':
@@ -329,6 +329,40 @@ def exportar_epicrisis_pdf(request, epicrisis_id):
     response = HttpResponse(pdf, content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="epicrisis_{paciente.nombre}.pdf"'
     return response
+
+
+@login_required
+def ver_epicrisis(request, epicrisis_id):
+    epicrisis = get_object_or_404(Epicrisis, id=epicrisis_id)
+    paciente = epicrisis.paciente
+
+    context = {
+        'paciente': paciente,
+        'rut': getattr(paciente, 'rut', ''),
+        'FN': paciente.fecha_nacimiento.strftime('%d/%m/%Y') if paciente.fecha_nacimiento else '',
+        'fono': getattr(paciente, 'telefonos', ''),
+        'dom': getattr(paciente, 'domicilio', ''),
+        'FE': epicrisis.fecha_creacion.strftime('%d/%m/%Y'),
+        'ficha': paciente.ficha,
+        'logo_url': request.build_absolute_uri(static('img/logo.png')),
+        'mdtte': str(epicrisis.autor),
+        'AM': getattr(epicrisis, 'am', ''),
+        'AQx': getattr(epicrisis, 'aqx', ''),
+        'Alergias': getattr(epicrisis, 'alergias', ''),
+        'Fcos': getattr(epicrisis, 'fcos', ''),
+        'ingreso': getattr(epicrisis, 'ingreso', ''),
+        'LabIngreso': getattr(epicrisis, 'lab_ingreso', ''),
+        'PlanIngreso': getattr(epicrisis, 'plan_ingreso', ''),
+        'intraop': getattr(epicrisis, 'intraop', ''),
+        'evolucion': getattr(epicrisis, 'comentario_evolucion', ''),
+        'dgegreso': epicrisis.diagnostico_egreso,
+        'indicacionesSegunDgPH': epicrisis.indicaciones_generales,
+        'indicacionesControles': epicrisis.indicaciones_controles,
+        'medicamentos': epicrisis.episodio.medicamentos.all(),
+        'peso': getattr(epicrisis, 'peso', ''),
+    }
+
+    return render(request, 'pacientes/epicrisis_template.html', context)
 
 
 from django.http import JsonResponse

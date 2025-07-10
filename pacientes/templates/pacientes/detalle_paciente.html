@@ -250,10 +250,16 @@
               {% if epicrisis_existente.finalizado %}
                 <div class="alert alert-info d-flex align-items-center justify-content-between">
                   <span>Ya existe una epicrisis finalizada para este episodio.</span>
-                  <a href="{% url 'exportar_epicrisis_pdf' epicrisis_existente.id %}"
-                     class="btn btn-sm btn-outline-secondary">
-                    Ver PDF
-                  </a>
+                  <div class="btn-group">
+                    <a href="{% url 'ver_epicrisis' epicrisis_existente.id %}"
+                       class="btn btn-sm btn-outline-secondary">Vista previa</a>
+                    {% if paciente.hospitalizado %}
+                    <a href="{% url 'editar_epicrisis' epicrisis_existente.id %}"
+                       class="btn btn-sm btn-outline-warning">Modificar</a>
+                    {% endif %}
+                    <a href="{% url 'exportar_epicrisis_pdf' epicrisis_existente.id %}"
+                       class="btn btn-sm btn-outline-secondary">Ver PDF</a>
+                  </div>
                 </div>
               {% else %}
                 <div class="alert alert-warning d-flex align-items-center justify-content-between">
@@ -307,10 +313,12 @@
                         {% if e.indicaciones_generales %}
                           <p><strong>Indicaciones generales:</strong><br>{{ e.indicaciones_generales|linebreaks }}</p>
                         {% endif %}
-                        <a href="{% url 'exportar_epicrisis_pdf' e.id %}"
-                           class="btn btn-outline-primary btn-sm">
-                          Ver PDF
-                        </a>
+                        <div class="btn-group">
+                          <a href="{% url 'ver_epicrisis' e.id %}"
+                             class="btn btn-outline-secondary btn-sm">Vista previa</a>
+                          <a href="{% url 'exportar_epicrisis_pdf' e.id %}"
+                             class="btn btn-outline-primary btn-sm">Ver PDF</a>
+                        </div>
                       </div>
                     </div>
                   {% endif %}
