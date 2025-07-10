@@ -109,21 +109,19 @@
 
         <!-- Antecedentes -->
         <div class="tab-pane fade" id="antecedentes">
-            {% for tipo, label in tipo_labels.items %}
-                <h5 class="mt-3">{{ label }}</h5>
-                {% with antecedentes_por_tipo[tipo] as lista %}
-                    {% if lista %}
-                        {% for ant in lista %}
-                            <div class="card mb-2">
-                                <div class="card-body">
-                                    {{ ant.descripcion }}
-                                </div>
+            {% for item in antecedentes_por_tipo %}
+                <h5 class="mt-3">{{ item.label }}</h5>
+                {% if item.lista %}
+                    {% for ant in item.lista %}
+                        <div class="card mb-2">
+                            <div class="card-body">
+                                {{ ant.descripcion }}
                             </div>
-                        {% endfor %}
-                    {% else %}
-                        <p class="text-muted">No hay antecedentes registrados.</p>
-                    {% endif %}
-                {% endwith %}
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted">No hay antecedentes registrados.</p>
+                {% endif %}
             {% endfor %}
 
             <div class="card mb-4 shadow-sm mt-4">
