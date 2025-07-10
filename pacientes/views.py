@@ -345,15 +345,6 @@ def dar_de_alta_paciente(request, paciente_id):
 
     messages.error(request, 'Método no permitido.')
     return redirect('detalle_paciente', paciente_id=paciente.id)
-    paciente = get_object_or_404(Paciente, id=paciente_id)
-
-    if request.method == 'POST':
-        paciente.dar_de_alta()
-        messages.success(request, f'El paciente {paciente.nombre} ha sido dado de alta.')
-        return redirect('detalle_paciente', paciente_id=paciente.id)
-
-    messages.error(request, 'Método no permitido.')
-    return redirect('detalle_paciente', paciente_id=paciente.id)    
 
 
 @login_required
@@ -393,11 +384,10 @@ def obtener_datos_catalogo(request, pk):
         catalogo = MedicamentoCatalogo.objects.get(pk=pk)
         data = {
             'nombre': catalogo.nombre,
-            'dosis': catalogo.dosis,
-            'frecuencia': catalogo.frecuencia,
-            'via': catalogo.via,
+            'vias': list(catalogo.via.values_list('nombre', flat=True)),
+            'frecuencias': list(catalogo.frecuencia.values_list('nombre', flat=True)),
         }
     except MedicamentoCatalogo.DoesNotExist:
         data = {}
 
-    return JsonResponse(data)    
+    return JsonResponse(data)
