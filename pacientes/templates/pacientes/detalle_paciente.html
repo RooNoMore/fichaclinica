@@ -245,17 +245,27 @@
         <!-- Epicrisis -->
         <div class="tab-pane fade" id="epicrisis" role="tabpanel">
 
-            {# 1) Si hay un borrador lo tomamos de epicrisis_borrador #}
-            {% if epicrisis_borrador %}
-              <div class="alert alert-warning d-flex align-items-center justify-content-between">
-                <span>Ya existe una epicrisis en borrador para este paciente.</span>
-                <a href="{% url 'editar_epicrisis' epicrisis_borrador.id %}"
-                   class="btn btn-sm btn-outline-warning">
-                  Editar borrador
-                </a>
-              </div>
-          
-            {# 2) Si no hay borrador, mostramos el formulario de creación #}
+            {# 1) Si existe una epicrisis asociada al episodio #}
+            {% if epicrisis_existente %}
+              {% if epicrisis_existente.finalizado %}
+                <div class="alert alert-info d-flex align-items-center justify-content-between">
+                  <span>Ya existe una epicrisis finalizada para este episodio.</span>
+                  <a href="{% url 'exportar_epicrisis_pdf' epicrisis_existente.id %}"
+                     class="btn btn-sm btn-outline-secondary">
+                    Ver PDF
+                  </a>
+                </div>
+              {% else %}
+                <div class="alert alert-warning d-flex align-items-center justify-content-between">
+                  <span>Ya existe una epicrisis en borrador para este paciente.</span>
+                  <a href="{% url 'editar_epicrisis' epicrisis_existente.id %}"
+                     class="btn btn-sm btn-outline-warning">
+                    Editar borrador
+                  </a>
+                </div>
+              {% endif %}
+
+            {# 2) Si no hay epicrisis para el episodio, mostramos el formulario de creación #}
             {% else %}
               <div class="card mb-4 shadow-sm">
                 <div class="card-header bg-white">
@@ -265,7 +275,7 @@
                   <form method="post" action="{% url 'crear_epicrisis' paciente.id %}">
                     {% csrf_token %}
                     {{ epicrisis_form.as_p }}
-          
+
                     <button type="submit" name="accion" value="guardar"
                             class="btn btn-primary btn-sm">
                       Guardar
