@@ -440,6 +440,18 @@ def dar_de_alta_paciente(request, paciente_id):
 
 
 @login_required
+def eliminar_antecedente(request, antecedente_id):
+    antecedente = get_object_or_404(Antecedente, id=antecedente_id)
+    paciente_id = antecedente.paciente.id
+
+    if request.method == 'POST':
+        antecedente.delete()
+        messages.success(request, 'Antecedente eliminado correctamente.')
+
+    return redirect('detalle_paciente', paciente_id=paciente_id)
+
+
+@login_required
 def buscar_pacientes(request):
     query = request.GET.get('q')
     resultados = []

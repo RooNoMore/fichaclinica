@@ -19,6 +19,7 @@ urlpatterns = [
     path('camas-disponibles/', views.camas_disponibles, name='camas_disponibles'),
     path('epicrisis/<int:epicrisis_id>/editar/', views.editar_epicrisis, name='editar_epicrisis'),
     path('pacientes/<int:paciente_id>/alta/', views.dar_de_alta_paciente, name='dar_de_alta_paciente'),
+    path('antecedentes/<int:antecedente_id>/eliminar/', views.eliminar_antecedente, name='eliminar_antecedente'),
     path('buscar/', views.buscar_pacientes, name='buscar_pacientes'),
     path('ajax/cargar-opciones-medicamento/', views.cargar_opciones_medicamento, name='cargar_opciones_medicamento'),
     path('api/medicamento-catalogo/<int:pk>/', views.obtener_datos_catalogo, name='obtener_datos_catalogo'),
