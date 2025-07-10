@@ -1,21 +1,6 @@
-{% extends 'base.html' %}
-
-{% block content %}
-<h3>Crear Receta para {{ paciente.nombre }}</h3>
-<form method="post">
+<h3>Crear Receta Médica para {{ paciente.nombre }}</h3>
+<form method="POST">
     {% csrf_token %}
     {{ form.as_p }}
-    <button type="submit" class="btn btn-primary">Generar PDF</button>
+    <button type="submit">Crear Receta</button>
 </form>
-
-<h5 class="mt-4">Medicamentos guardados</h5>
-{% if medicamentos %}
-<ul>
-    {% for med in medicamentos %}
-    <li>{{ med.nombre }} - {{ med.dosis }}, {{ med.frecuencia }}, vía {{ med.via }}</li>
-    {% endfor %}
-</ul>
-{% else %}
-<p>No hay medicamentos registrados.</p>
-{% endif %}
-{% endblock %}
