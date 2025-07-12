@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Receta Médica</title>
+    <style>
+        body { font-family: Arial, sans-serif; font-size: 12pt; margin: 30px; }
+        h1 { text-align: center; font-size: 14pt; margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
+        th, td { border: 1px solid #000; padding: 4px; }
+    </style>
+</head>
+<body>
+    <h1>Receta Médica</h1>
+
+    <p><strong>Nombre:</strong> {{ paciente.nombre }}</p>
+    <p><strong>Edad:</strong> {{ edad }}</p>
+    <p><strong>RUT:</strong> {{ paciente.rut }}</p>
+    <p><strong>Ficha:</strong> {{ paciente.ficha }}</p>
+    <p><strong>Diagnóstico de ingreso:</strong> {{ paciente.diagnostico }}</p>
+    <p><strong>Cama:</strong> {{ paciente.cama.numero if paciente.cama }}</p>
+    <p><strong>Días de tratamiento:</strong> {{ dias_tratamiento }}</p>
+
+    <h2>Medicamentos</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Dosis</th>
+                <th>Frecuencia</th>
+                <th>Vía</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for med in medicamentos %}
+            <tr>
+                <td>{{ med.nombre }}</td>
+                <td>{{ med.dosis }}</td>
+                <td>{{ med.frecuencia }}</td>
+                <td>{{ med.via }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <p style="margin-top:40px;">______________________________________</p>
+    <p>Médico responsable</p>
+</body>
+</html>

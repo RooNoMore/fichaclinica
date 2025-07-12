@@ -92,6 +92,14 @@ class RecetaForm(forms.ModelForm):
         fields = ['medicamento', 'dosis', 'frecuencia', 'duracion', 'indicaciones_extra']
 
 
+class RecetaPDFForm(forms.Form):
+    dias_tratamiento = forms.IntegerField(
+        min_value=1,
+        label="Días de tratamiento",
+        help_text="Duración total de la terapia en días",
+    )
+
+
 class AntecedenteForm(forms.ModelForm):
     class Meta:
         model = Antecedente

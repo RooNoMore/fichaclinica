@@ -1,6 +1,32 @@
-<h3>Crear Receta Médica para {{ paciente.nombre }}</h3>
+<h3>Receta para {{ paciente.nombre }}</h3>
+
+{% if medicamentos %}
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Dosis</th>
+            <th>Frecuencia</th>
+            <th>Vía</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for med in medicamentos %}
+        <tr>
+            <td>{{ med.nombre }}</td>
+            <td>{{ med.dosis }}</td>
+            <td>{{ med.frecuencia }}</td>
+            <td>{{ med.via }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>No hay medicamentos guardados.</p>
+{% endif %}
+
 <form method="POST">
     {% csrf_token %}
     {{ form.as_p }}
-    <button type="submit">Crear Receta</button>
+    <button type="submit" class="btn btn-primary">Generar PDF</button>
 </form>
