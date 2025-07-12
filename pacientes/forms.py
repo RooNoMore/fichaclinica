@@ -11,6 +11,7 @@ from .models import (
     Via,
     Frecuencia,
     Antecedente,
+    Indicacion,
 )
 
 from django import forms
@@ -170,6 +171,29 @@ MedicamentoFormSet = inlineformset_factory(
     Episodio, Medicamento,  # <--- CORREGIDO
     fields=('catalogo', 'nombre', 'dosis', 'frecuencia', 'via'),
     form=MedicamentoForm,
-    extra=1, 
+    extra=1,
     can_delete=True
 )
+
+class IndicacionForm(forms.ModelForm):
+    class Meta:
+        model = Indicacion
+        fields = [
+            'fecha',
+            'reposo',
+            'regimen',
+            'medicamentos',
+            'infusiones',
+            'dispositivos',
+            'otras',
+        ]
+        widgets = {
+            'fecha': forms.DateTimeInput(attrs={'type': 'datetime-local', 'class': 'form-control'}),
+            'reposo': forms.Textarea(attrs={'rows': 1, 'class': 'form-control'}),
+            'regimen': forms.Textarea(attrs={'rows': 1, 'class': 'form-control'}),
+            'medicamentos': forms.Textarea(attrs={'rows': 2, 'class': 'form-control'}),
+            'infusiones': forms.Textarea(attrs={'rows': 1, 'class': 'form-control'}),
+            'dispositivos': forms.Textarea(attrs={'rows': 1, 'class': 'form-control'}),
+            'otras': forms.Textarea(attrs={'rows': 2, 'class': 'form-control'}),
+        }
+

@@ -26,6 +26,7 @@ from .forms import (
     MedicamentoFormSet,
     AntecedenteForm,
     AntecedentesPacienteForm,
+    IndicacionForm,
 )
 from .models import (
     Cama,
@@ -38,6 +39,7 @@ from .models import (
     Episodio,
     MedicamentoCatalogo,
     Antecedente,
+    Indicacion,
 )
 
 @login_required
@@ -88,6 +90,7 @@ def detalle_paciente(request, paciente_id):
     form = EvolucionForm()
     formset = MedicamentoFormSet(request.POST or None, instance=episodio_activo) if episodio_activo else None
     antecedentes_form = AntecedentesPacienteForm()
+    indicacion_form = IndicacionForm()
     antecedentes = paciente.antecedentes.all()
     antecedentes_por_tipo = [
         {
@@ -122,6 +125,16 @@ def detalle_paciente(request, paciente_id):
                 return redirect('detalle_paciente', paciente_id=paciente.id)
             else:
                 messages.error(request, "Error al guardar evolución.")
+        elif accion == 'guardar_indicacion' and episodio_activo:
+            indicacion_form = IndicacionForm(request.POST)
+            if indicacion_form.is_valid():
+                indicacion = indicacion_form.save(commit=False)
+                indicacion.episodio = episodio_activo
+                indicacion.save()
+                messages.success(request, "Indicaciones guardadas correctamente.")
+                return redirect('detalle_paciente', paciente_id=paciente.id)
+            else:
+                messages.error(request, "Error al guardar indicaciones.")
         elif accion == 'guardar_antecedente':
             antecedentes_form = AntecedentesPacienteForm(request.POST)
             if antecedentes_form.is_valid():
@@ -145,6 +158,7 @@ def detalle_paciente(request, paciente_id):
             episodio=episodio_activo
         ).first()
     epicrisis_form = EpicrisisForm() if not epicrisis_existente else None
+    indicaciones = episodio_activo.indicaciones.all().order_by('-fecha') if episodio_activo else []
 
     context = {
         'paciente': paciente,
@@ -155,6 +169,8 @@ def detalle_paciente(request, paciente_id):
         'antecedente_form': antecedentes_form,
         'antecedentes': antecedentes,
         'antecedentes_por_tipo': antecedentes_por_tipo,
+        'indicacion_form': indicacion_form,
+        'indicaciones': indicaciones,
         'epicrisis_form': epicrisis_form,
         'epicrisis_existente': epicrisis_existente,
     }

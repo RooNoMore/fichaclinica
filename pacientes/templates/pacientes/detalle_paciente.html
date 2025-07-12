@@ -54,6 +54,9 @@
             <a class="nav-link" id="receta-tab" data-bs-toggle="tab" href="#receta">Recetas</a>
         </li>
         <li class="nav-item">
+            <a class="nav-link" id="indicaciones-tab" data-bs-toggle="tab" href="#indicaciones">Indicaciones</a>
+        </li>
+        <li class="nav-item">
             <a class="nav-link" id="epicrisis-tab" data-bs-toggle="tab" href="#epicrisis">Epicrisis</a>
         </li>
     </ul>
@@ -278,6 +281,42 @@
                 {% endfor %}
             {% else %}
                 <p>No hay recetas registradas.</p>
+            {% endif %}
+        </div>
+
+        <!-- Indicaciones -->
+        <div class="tab-pane fade" id="indicaciones">
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header">
+                    <h5 class="mb-0">Agregar Indicaciones</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="accion" value="guardar_indicacion">
+                        {{ indicacion_form.as_p }}
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                    </form>
+                </div>
+            </div>
+
+            <h5>Indicaciones previas</h5>
+            {% if indicaciones %}
+                {% for ind in indicaciones %}
+                    <div class="card mb-2">
+                        <div class="card-body">
+                            <small class="text-muted">{{ ind.fecha|date:"d/m/Y H:i" }}</small>
+                            <p><strong>Reposo:</strong> {{ ind.reposo|default:'-' }}</p>
+                            <p><strong>Régimen:</strong> {{ ind.regimen|default:'-' }}</p>
+                            <p><strong>Medicamentos:</strong><br>{{ ind.medicamentos|linebreaks|default:'-' }}</p>
+                            <p><strong>Infusiones:</strong> {{ ind.infusiones|default:'-' }}</p>
+                            <p><strong>Dispositivos:</strong> {{ ind.dispositivos|default:'-' }}</p>
+                            <p><strong>Otras indicaciones:</strong><br>{{ ind.otras|linebreaks|default:'-' }}</p>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p class="text-muted">No hay indicaciones registradas.</p>
             {% endif %}
         </div>
 

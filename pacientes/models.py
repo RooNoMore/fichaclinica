@@ -218,6 +218,21 @@ class Medicamento(models.Model):
         return f"{self.nombre} ({self.dosis}, {self.frecuencia}, vía {self.via})"
 
 
+class Indicacion(models.Model):
+    episodio = models.ForeignKey('Episodio', related_name='indicaciones', on_delete=models.CASCADE)
+    fecha = models.DateTimeField(default=timezone.now)
+    reposo = models.CharField(max_length=100, blank=True)
+    regimen = models.CharField(max_length=100, blank=True)
+    medicamentos = models.TextField(blank=True)
+    infusiones = models.TextField(blank=True)
+    dispositivos = models.TextField(blank=True)
+    otras = models.TextField(blank=True)
+
+    def __str__(self):
+        fecha_str = self.fecha.strftime('%d/%m/%Y') if self.fecha else 'Sin fecha'
+        return f"Indicaciones {fecha_str} para {self.episodio.paciente}"
+
+
 class Antecedente(models.Model):
     TIPO_CHOICES = [
         ("morbido", "Mórbido"),
