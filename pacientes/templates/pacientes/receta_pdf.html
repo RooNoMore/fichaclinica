@@ -18,7 +18,9 @@
     <p><strong>RUT:</strong> {{ paciente.rut }}</p>
     <p><strong>Ficha:</strong> {{ paciente.ficha }}</p>
     <p><strong>Diagnóstico de ingreso:</strong> {{ paciente.diagnostico }}</p>
-    <p><strong>Cama:</strong> {{ paciente.cama.numero if paciente.cama }}</p>
+    <p><strong>Cama:</strong>
+        {% if paciente.cama %}{{ paciente.cama.numero }}{% else %}{% endif %}
+    </p>
     <p><strong>Días de tratamiento:</strong> {{ dias_tratamiento }}</p>
 
     <h2>Medicamentos</h2>
