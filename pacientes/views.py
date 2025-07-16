@@ -15,6 +15,8 @@ from django.templatetags.static import static
 from django.utils import timezone
 from django.utils.timezone import now
 
+from .utils import normalizar_rut
+
 # Locales (de tu app)
 from .forms import (
     EvolucionForm,
@@ -64,12 +66,36 @@ def nuevo_paciente(request):
     if request.method == 'POST':
         form = PacienteForm(request.POST)
         if form.is_valid():
-            paciente = form.save()  # Guardamos el paciente y lo capturamos
+            rut = form.cleaned_data.get('rut')
+            ficha = form.cleaned_data.get('ficha')
+            rut = normalizar_rut(rut) if rut else None
 
-            # 🔥 Luego creamos automáticamente el primer episodio
+            paciente = None
+            if rut:
+                paciente = Paciente.objects.filter(rut=rut).first()
+            if not paciente and ficha:
+                paciente = Paciente.objects.filter(ficha=ficha).first()
+
+            if paciente:
+                paciente.nombre = form.cleaned_data['nombre']
+                paciente.rut = rut
+                paciente.fecha_nacimiento = form.cleaned_data['fecha_nacimiento']
+                paciente.fono = form.cleaned_data['fono']
+                paciente.domicilio = form.cleaned_data['domicilio']
+                paciente.diagnostico = form.cleaned_data['diagnostico']
+                paciente.unidad = form.cleaned_data['unidad']
+                paciente.cama = form.cleaned_data['cama']
+                paciente.hospitalizado = True
+                paciente.save()
+            else:
+                paciente = form.save(commit=False)
+                paciente.rut = rut
+                paciente.save()
+
             Episodio.objects.create(
                 paciente=paciente,
-                fecha_ingreso=timezone.now(),
+                fecha_ingreso=form.cleaned_data.get('fecha_ingreso') or timezone.now(),
+                cama=paciente.cama,
                 motivo_ingreso='Ingreso inicial',
                 finalizado=False
             )
@@ -537,5 +563,41 @@ def obtener_datos_catalogo(request, pk):
         }
     except MedicamentoCatalogo.DoesNotExist:
         data = {}
+
+    return JsonResponse(data)
+
+
+@login_required
+def buscar_paciente_api(request):
+    """Devuelve los datos de un paciente si existe para autocompletar el formulario."""
+    rut = request.GET.get("rut")
+    ficha = request.GET.get("ficha")
+
+    rut = normalizar_rut(rut) if rut else None
+    paciente = None
+
+    if rut:
+        paciente = Paciente.objects.filter(rut=rut).first()
+
+    if not paciente and ficha:
+        try:
+            ficha_int = int(ficha)
+            paciente = Paciente.objects.filter(ficha=ficha_int).first()
+        except ValueError:
+            pass
+
+    if paciente:
+        data = {
+            "existe": True,
+            "id": paciente.id,
+            "nombre": paciente.nombre,
+            "rut": paciente.rut,
+            "fecha_nacimiento": paciente.fecha_nacimiento.strftime("%Y-%m-%d") if paciente.fecha_nacimiento else "",
+            "fono": paciente.fono or "",
+            "domicilio": paciente.domicilio or "",
+            "diagnostico": paciente.diagnostico or "",
+        }
+    else:
+        data = {"existe": False}
 
     return JsonResponse(data)

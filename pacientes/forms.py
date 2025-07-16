@@ -17,6 +17,8 @@ from .models import (
 from django import forms
 from django.forms import inlineformset_factory
 
+from .utils import normalizar_rut
+
 
 
 
@@ -52,6 +54,10 @@ class PacienteForm(forms.ModelForm):
         elif self.instance.pk and self.instance.cama:
             self.fields['cama'].queryset = Cama.objects.filter(unidad=self.instance.cama.unidad)
             self.fields['unidad'].initial = self.instance.cama.unidad
+
+    def clean_rut(self):
+        rut = self.cleaned_data.get('rut')
+        return normalizar_rut(rut)
 
             
 from django import forms
