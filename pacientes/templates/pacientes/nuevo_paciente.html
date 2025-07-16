@@ -39,6 +39,31 @@
     document.addEventListener('DOMContentLoaded', function () {
         const unidadSelect = document.getElementById('id_unidad');
         const camaSelect = document.getElementById('id_cama');
+        const rutInput = document.getElementById('id_rut');
+        const fichaInput = document.getElementById('id_ficha');
+
+        function buscarPaciente() {
+            const params = new URLSearchParams();
+            if (rutInput.value) params.append('rut', rutInput.value);
+            if (fichaInput.value) params.append('ficha', fichaInput.value);
+            if (!params.toString()) return;
+
+            fetch(`/pacientes/api/buscar-paciente/?${params.toString()}`)
+                .then(resp => resp.json())
+                .then(data => {
+                    if (data.existe) {
+                        document.getElementById('id_nombre').value = data.nombre || '';
+                        document.getElementById('id_rut').value = data.rut || '';
+                        document.getElementById('id_fecha_nacimiento').value = data.fecha_nacimiento || '';
+                        document.getElementById('id_fono').value = data.fono || '';
+                        document.getElementById('id_domicilio').value = data.domicilio || '';
+                        document.getElementById('id_diagnostico').value = data.diagnostico || '';
+                    }
+                });
+        }
+
+        if (rutInput) rutInput.addEventListener('blur', buscarPaciente);
+        if (fichaInput) fichaInput.addEventListener('blur', buscarPaciente);
 
         if (unidadSelect && camaSelect) {
             unidadSelect.addEventListener('change', function () {
