@@ -301,6 +301,11 @@ def inicio(request):
     return render(request, 'pacientes/inicio.html')
 
 
+@login_required
+def estudios(request):
+    return render(request, 'pacientes/estudios.html')
+
+
 
 
 
