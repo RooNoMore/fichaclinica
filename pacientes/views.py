@@ -64,40 +64,37 @@ def lista_camas(request):
 @login_required
 def nuevo_paciente(request):
     if request.method == 'POST':
-        form = PacienteForm(request.POST)
+        # Obtener valores sin validar para buscar coincidencias previas
+        rut_raw = request.POST.get('rut')
+        ficha_raw = request.POST.get('ficha')
+
+        rut_norm = normalizar_rut(rut_raw) if rut_raw else None
+        paciente = None
+        if rut_norm:
+            paciente = Paciente.objects.filter(rut=rut_norm).first()
+        if not paciente and ficha_raw:
+            try:
+                ficha_int = int(ficha_raw)
+                paciente = Paciente.objects.filter(ficha=ficha_int).first()
+            except ValueError:
+                pass
+
+        # Si existe, instanciamos el formulario con ese paciente para evitar la
+        # validación de unicidad y actualizar sus datos
+        form = PacienteForm(request.POST, instance=paciente)
+
         if form.is_valid():
-            rut = form.cleaned_data.get('rut')
-            ficha = form.cleaned_data.get('ficha')
-            rut = normalizar_rut(rut) if rut else None
-
-            paciente = None
-            if rut:
-                paciente = Paciente.objects.filter(rut=rut).first()
-            if not paciente and ficha:
-                paciente = Paciente.objects.filter(ficha=ficha).first()
-
-            if paciente:
-                paciente.nombre = form.cleaned_data['nombre']
-                paciente.rut = rut
-                paciente.fecha_nacimiento = form.cleaned_data['fecha_nacimiento']
-                paciente.fono = form.cleaned_data['fono']
-                paciente.domicilio = form.cleaned_data['domicilio']
-                paciente.diagnostico = form.cleaned_data['diagnostico']
-                paciente.unidad = form.cleaned_data['unidad']
-                paciente.cama = form.cleaned_data['cama']
-                paciente.hospitalizado = True
-                paciente.save()
-            else:
-                paciente = form.save(commit=False)
-                paciente.rut = rut
-                paciente.save()
+            paciente = form.save(commit=False)
+            paciente.rut = normalizar_rut(form.cleaned_data.get('rut')) if form.cleaned_data.get('rut') else None
+            paciente.hospitalizado = True
+            paciente.save()
 
             Episodio.objects.create(
                 paciente=paciente,
                 fecha_ingreso=form.cleaned_data.get('fecha_ingreso') or timezone.now(),
                 cama=paciente.cama,
                 motivo_ingreso='Ingreso inicial',
-                finalizado=False
+                finalizado=False,
             )
 
             return redirect('lista_camas')
