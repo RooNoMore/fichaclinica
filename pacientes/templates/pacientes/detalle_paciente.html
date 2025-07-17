@@ -28,7 +28,7 @@
 
 
 {% if paciente.hospitalizado %}
-<form method="post" action="{% url 'dar_de_alta_paciente' paciente.id %}">
+<form method="post" action="{% url 'dar_de_alta_paciente' paciente.id %}" onsubmit="return confirm('¿Estás seguro que quieres dar de alta a este paciente?');">
     {% csrf_token %}
     <button type="submit" class="btn btn-danger">Dar de Alta</button>
 </form>
