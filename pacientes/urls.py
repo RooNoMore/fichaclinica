@@ -26,4 +26,7 @@ urlpatterns = [
     path('ajax/cargar-opciones-medicamento/', views.cargar_opciones_medicamento, name='cargar_opciones_medicamento'),
     path('api/medicamento-catalogo/<int:pk>/', views.obtener_datos_catalogo, name='obtener_datos_catalogo'),
     path('api/buscar-paciente/', views.buscar_paciente_api, name='buscar_paciente_api'),
+    path('api/plantillas/', views.obtener_plantillas, name='obtener_plantillas'),
+    path('api/plantillas/guardar/', views.guardar_plantilla, name='guardar_plantilla'),
+    path('api/pacientes/<int:paciente_id>/ultima-indicacion/', views.ultima_indicacion, name='ultima_indicacion'),
 ]
