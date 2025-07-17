@@ -110,8 +110,17 @@ def nuevo_paciente(request):
 @login_required
 def detalle_paciente(request, paciente_id):
     paciente = get_object_or_404(Paciente, id=paciente_id)
-    episodio_activo = paciente.episodios.filter(fecha_egreso__isnull=True).first()
-    evoluciones = episodio_activo.evoluciones.all().order_by('-fecha') if episodio_activo else []
+    episodio_activo = (
+        paciente.episodios.filter(fecha_egreso__isnull=True).first()
+    )
+    evoluciones = (
+        episodio_activo.evoluciones.all().order_by('-fecha') if episodio_activo else []
+    )
+    episodios_previos = (
+        paciente.episodios.exclude(id=episodio_activo.id)
+        if episodio_activo
+        else paciente.episodios.all()
+    ).order_by('-fecha_ingreso')
 
     form = EvolucionForm()
     formset = MedicamentoFormSet(request.POST or None, instance=episodio_activo) if episodio_activo else None
@@ -199,6 +208,7 @@ def detalle_paciente(request, paciente_id):
         'indicaciones': indicaciones,
         'epicrisis_form': epicrisis_form,
         'epicrisis_existente': epicrisis_existente,
+        'episodios_previos': episodios_previos,
     }
     return render(request, 'pacientes/detalle_paciente.html', context)
 
