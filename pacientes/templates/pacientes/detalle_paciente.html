@@ -59,6 +59,9 @@
         <li class="nav-item">
             <a class="nav-link" id="epicrisis-tab" data-bs-toggle="tab" href="#epicrisis">Epicrisis</a>
         </li>
+        <li class="nav-item">
+            <a class="nav-link" id="hospitalizaciones-tab" data-bs-toggle="tab" href="#hospitalizaciones">Hospitalizaciones previas</a>
+        </li>
     </ul>
 
     <div class="tab-content mt-3" id="miTabContent">
@@ -404,9 +407,27 @@
               {% else %}
                 <p class="text-muted">No hay epicrisis registradas para este paciente.</p>
               {% endif %}
-            {% endwith %}
-          
+        {% endwith %}
+
           </div>
+        <!-- Hospitalizaciones previas -->
+        <div class="tab-pane fade" id="hospitalizaciones" role="tabpanel">
+            {% if episodios_previos %}
+                {% for e in episodios_previos %}
+                    <div class="card mb-2">
+                        <div class="card-body">
+                            <p><strong>Ingreso:</strong> {{ e.fecha_ingreso|date:"d/m/Y H:i" }}</p>
+                            <p><strong>Egreso:</strong> {{ e.fecha_egreso|date:"d/m/Y H:i"|default:"-" }}</p>
+                            {% if e.epicrisis %}
+                                <a href="{% url 'ver_epicrisis' e.epicrisis.id %}" class="btn btn-sm btn-outline-secondary">Ver epicrisis</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p class="text-muted">No hay episodios previos registrados.</p>
+            {% endif %}
+        </div>
 
     </div>
 </div>

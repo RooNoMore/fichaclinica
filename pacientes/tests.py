@@ -1,4 +1,5 @@
-from datetime import date
+from datetime import date, timedelta
+from django.utils import timezone
 
 from django.contrib.auth.models import User
 from django.test import TestCase
@@ -62,4 +63,26 @@ class EpicrisisAntecedentesTests(TestCase):
         response = self.client.get(url)
         self.assertContains(response, "HTA")
         self.assertContains(response, "Apendicectomía")
+
+
+class EpisodiosPreviosTests(TestCase):
+    def test_detalle_paciente_muestra_episodios_previos(self):
+        user = User.objects.create_user(username="user", password="pw")
+        self.client.login(username="user", password="pw")
+
+        paciente = Paciente.objects.create(nombre="HospTest")
+        ingreso = timezone.now() - timedelta(days=10)
+        egreso = ingreso + timedelta(days=5)
+        antiguo = Episodio.objects.create(
+            paciente=paciente,
+            fecha_ingreso=ingreso,
+            fecha_egreso=egreso,
+        )
+        activo = Episodio.objects.create(paciente=paciente)
+
+        url = reverse("detalle_paciente", args=[paciente.id])
+        response = self.client.get(url)
+
+        episodios = list(response.context["episodios_previos"])
+        self.assertEqual(episodios, [antiguo])
 
