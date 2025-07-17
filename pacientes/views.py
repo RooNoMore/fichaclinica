@@ -596,6 +596,7 @@ def buscar_paciente_api(request):
             "fono": paciente.fono or "",
             "domicilio": paciente.domicilio or "",
             "diagnostico": paciente.diagnostico or "",
+            "tiene_episodios": paciente.episodios.exists(),
         }
     else:
         data = {"existe": False}
