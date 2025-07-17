@@ -12,6 +12,7 @@ urlpatterns = [
     path('pacientes/<int:paciente_id>/examenes/', views.solicitar_examenes, name='solicitar_examenes'),
     path('pacientes/<int:paciente_id>/receta/', views.crear_receta, name='crear_receta'),
     path('pacientes/<int:paciente_id>/epicrisis/nueva/', views.crear_epicrisis, name='crear_epicrisis'),
+    path('episodios/<int:episodio_id>/', views.detalle_episodio, name='detalle_episodio'),
     path('epicrisis/<int:epicrisis_id>/pdf/', views.exportar_epicrisis_pdf, name='exportar_epicrisis_pdf'),
     path('epicrisis/<int:epicrisis_id>/ver/', views.ver_epicrisis, name='ver_epicrisis'),
     path('interconsultas/', views.interconsultas_recibidas, name='interconsultas_recibidas'),

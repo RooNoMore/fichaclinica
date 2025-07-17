@@ -42,6 +42,13 @@ class Paciente(models.Model):
         self.hospitalizado = False
         self.fecha_egreso = timezone.now()
 
+        episodio_activo = self.episodios.filter(fecha_egreso__isnull=True).first()
+        if episodio_activo:
+            episodio_activo.fecha_egreso = timezone.now()
+            episodio_activo.finalizado = True
+            episodio_activo.cama = None
+            episodio_activo.save()
+
         # Desocupar la cama si tiene una asignada
         if self.cama:
             self.cama.disponible = True

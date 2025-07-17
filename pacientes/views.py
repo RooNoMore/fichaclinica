@@ -397,6 +397,11 @@ def editar_epicrisis(request, epicrisis_id):
             epicrisis = form.save()
             if request.POST.get('accion') == 'finalizar':
                 epicrisis.finalizado = True
+                episodio = epicrisis.episodio
+                episodio.fecha_egreso = timezone.now()
+                episodio.finalizado = True
+                episodio.cama = None
+                episodio.save()
                 epicrisis.paciente.fecha_egreso = now().date()
                 epicrisis.paciente.save()
                 epicrisis.save()
@@ -543,6 +548,16 @@ def buscar_pacientes(request):
     return render(request, 'pacientes/buscar_pacientes.html', {
         'resultados': resultados,
         'query': query
+    })
+
+
+@login_required
+def detalle_episodio(request, episodio_id):
+    episodio = get_object_or_404(Episodio, id=episodio_id)
+    evoluciones = episodio.evoluciones.all().order_by('-fecha')
+    return render(request, 'pacientes/detalle_episodio.html', {
+        'episodio': episodio,
+        'evoluciones': evoluciones,
     })
 
 def cargar_opciones_medicamento(request):

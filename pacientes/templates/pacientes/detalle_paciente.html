@@ -418,9 +418,12 @@
                         <div class="card-body">
                             <p><strong>Ingreso:</strong> {{ e.fecha_ingreso|date:"d/m/Y H:i" }}</p>
                             <p><strong>Egreso:</strong> {{ e.fecha_egreso|date:"d/m/Y H:i"|default:"-" }}</p>
-                            {% if e.epicrisis %}
-                                <a href="{% url 'ver_epicrisis' e.epicrisis.id %}" class="btn btn-sm btn-outline-secondary">Ver epicrisis</a>
-                            {% endif %}
+                            <div class="btn-group">
+                                <a href="{% url 'detalle_episodio' e.id %}" class="btn btn-sm btn-outline-secondary">Ver evoluciones</a>
+                                {% if e.epicrisis %}
+                                    <a href="{% url 'ver_epicrisis' e.epicrisis.id %}" class="btn btn-sm btn-outline-secondary">Ver epicrisis</a>
+                                {% endif %}
+                            </div>
                         </div>
                     </div>
                 {% endfor %}
