@@ -42,6 +42,7 @@ from .models import (
     MedicamentoCatalogo,
     Antecedente,
     Indicacion,
+    PlantillaTexto,
 )
 
 @login_required
@@ -623,3 +624,39 @@ def buscar_paciente_api(request):
         data = {"existe": False}
 
     return JsonResponse(data)
+
+
+@login_required
+def ultima_indicacion(request, paciente_id):
+    paciente = get_object_or_404(Paciente, id=paciente_id)
+    ultima = Indicacion.objects.filter(episodio__paciente=paciente).order_by('-fecha').first()
+    data = {}
+    if ultima:
+        data = {
+            'fecha': ultima.fecha.strftime('%Y-%m-%dT%H:%M'),
+            'reposo': ultima.reposo,
+            'regimen': ultima.regimen,
+            'medicamentos': ultima.medicamentos,
+            'infusiones': ultima.infusiones,
+            'dispositivos': ultima.dispositivos,
+            'otras': ultima.otras,
+        }
+    return JsonResponse(data)
+
+
+@login_required
+def obtener_plantillas(request):
+    tipo = request.GET.get('tipo')
+    plantillas = PlantillaTexto.objects.filter(usuario=request.user, tipo=tipo).values('id', 'titulo', 'contenido')
+    return JsonResponse({'plantillas': list(plantillas)})
+
+
+@login_required
+def guardar_plantilla(request):
+    if request.method == 'POST':
+        tipo = request.POST.get('tipo')
+        contenido = request.POST.get('contenido', '')
+        titulo = request.POST.get('titulo', '')
+        PlantillaTexto.objects.create(usuario=request.user, tipo=tipo, contenido=contenido, titulo=titulo)
+        return JsonResponse({'success': True})
+    return JsonResponse({'success': False}, status=400)

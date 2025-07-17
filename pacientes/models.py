@@ -255,3 +255,20 @@ class Antecedente(models.Model):
 
     def __str__(self):
         return f"{self.get_tipo_display()}: {self.descripcion}"
+
+
+class PlantillaTexto(models.Model):
+    TIPO_CHOICES = [
+        ("evolucion", "Evolución"),
+        ("indicacion", "Indicación"),
+        ("indicacion_general", "Indicación General Epicrisis"),
+    ]
+
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE, related_name="plantillas_texto")
+    tipo = models.CharField(max_length=30, choices=TIPO_CHOICES)
+    titulo = models.CharField(max_length=100, blank=True)
+    contenido = models.TextField()
+
+    def __str__(self):
+        titulo = self.titulo or "Sin título"
+        return f"{self.usuario.username} - {self.get_tipo_display()} - {titulo}"
