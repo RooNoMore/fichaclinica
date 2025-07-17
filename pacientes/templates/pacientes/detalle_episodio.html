@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Hospitalización de {{ episodio.paciente.nombre }}</h2>
+<p><strong>Ingreso:</strong> {{ episodio.fecha_ingreso|date:"d/m/Y H:i" }}</p>
+<p><strong>Egreso:</strong> {{ episodio.fecha_egreso|date:"d/m/Y H:i"|default:"-" }}</p>
+<h3>Evoluciones</h3>
+{% if evoluciones %}
+  {% for evo in evoluciones %}
+    <div class="card mb-3">
+      <div class="card-header d-flex justify-content-between">
+        <small class="text-muted">{{ evo.fecha|date:"d/m/Y H:i" }}</small>
+        <small class="text-muted">{{ evo.autor_detallado }}</small>
+      </div>
+      <div class="card-body">
+        <p class="card-text">{{ evo.contenido|linebreaks }}</p>
+        {% if evo.plan_indicaciones %}
+          <hr>
+          <p><strong>Plan:</strong> {{ evo.plan_indicaciones|linebreaks }}</p>
+        {% endif %}
+      </div>
+    </div>
+  {% endfor %}
+{% else %}
+  <p class="text-muted">No hay evoluciones registradas.</p>
+{% endif %}
+<a href="{% url 'detalle_paciente' episodio.paciente.id %}" class="btn btn-secondary">Volver</a>
+{% endblock %}

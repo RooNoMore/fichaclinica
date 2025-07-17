@@ -6,7 +6,7 @@ from django.test import TestCase
 
 from administrador.models import PerfilUsuario
 from django.urls import reverse
-from pacientes.models import Paciente, Episodio, Epicrisis, Antecedente
+from pacientes.models import Paciente, Episodio, Epicrisis, Antecedente, Evolucion
 
 
 class PacienteEdadTests(TestCase):
@@ -85,4 +85,32 @@ class EpisodiosPreviosTests(TestCase):
 
         episodios = list(response.context["episodios_previos"])
         self.assertEqual(episodios, [antiguo])
+
+
+class DarDeAltaTests(TestCase):
+    def test_dar_de_alta_actualiza_episodio(self):
+        paciente = Paciente.objects.create(nombre="Alta")
+        episodio = Episodio.objects.create(paciente=paciente)
+
+        paciente.dar_de_alta()
+
+        episodio.refresh_from_db()
+        self.assertIsNotNone(episodio.fecha_egreso)
+        self.assertTrue(episodio.finalizado)
+
+
+class DetalleEpisodioTests(TestCase):
+    def test_detalle_episodio_muestra_evoluciones(self):
+        user = User.objects.create_user(username="u", password="pw")
+        paciente = Paciente.objects.create(nombre="EvoTest")
+        episodio = Episodio.objects.create(paciente=paciente)
+        Evolucion.objects.create(episodio=episodio, contenido="nota")
+
+        paciente.dar_de_alta()
+        self.client.login(username="u", password="pw")
+
+        url = reverse('detalle_episodio', args=[episodio.id])
+        response = self.client.get(url)
+        self.assertContains(response, "nota")
+
 
