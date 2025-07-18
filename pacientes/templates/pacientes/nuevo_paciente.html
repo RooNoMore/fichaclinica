@@ -8,21 +8,57 @@
 
 {% block content %}
 <div class="container mt-4" style="max-width: 700px;">
-
     <h1 class="mb-4 text-center">Registrar nuevo paciente</h1>
 
-    <form method="post">
+    <form method="post" id="paciente-form">
         {% csrf_token %}
-        
-        {% for field in form %}
+
+        <div class="mb-3">
+            <label for="{{ form.ficha.id_for_label }}" class="form-label">{{ form.ficha.label }}:</label>
+            {{ form.ficha|add_class:"form-control" }}
+        </div>
+        <div class="mb-3">
+            <label for="{{ form.rut.id_for_label }}" class="form-label">{{ form.rut.label }}:</label>
+            {{ form.rut|add_class:"form-control" }}
+        </div>
+        <div class="mb-3">
+            <button type="button" id="buscar-btn" class="btn btn-secondary">Buscar paciente</button>
+        </div>
+
+        <div id="resto-campos" style="display: none;">
             <div class="mb-3">
-                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}:</label>
-                {{ field|add_class:"form-control" }}
-                {% if field.errors %}
-                    <div class="text-danger">{{ field.errors }}</div>
-                {% endif %}
+                <label for="{{ form.nombre.id_for_label }}" class="form-label">{{ form.nombre.label }}:</label>
+                {{ form.nombre|add_class:"form-control" }}
             </div>
-        {% endfor %}
+            <div class="mb-3">
+                <label for="{{ form.diagnostico.id_for_label }}" class="form-label">{{ form.diagnostico.label }}:</label>
+                {{ form.diagnostico|add_class:"form-control" }}
+            </div>
+            <div class="mb-3">
+                <label for="{{ form.unidad.id_for_label }}" class="form-label">{{ form.unidad.label }}:</label>
+                {{ form.unidad|add_class:"form-control" }}
+            </div>
+            <div class="mb-3">
+                <label for="{{ form.cama.id_for_label }}" class="form-label">{{ form.cama.label }}:</label>
+                {{ form.cama|add_class:"form-control" }}
+            </div>
+            <div class="mb-3">
+                <label for="{{ form.fecha_nacimiento.id_for_label }}" class="form-label">{{ form.fecha_nacimiento.label }}:</label>
+                {{ form.fecha_nacimiento|add_class:"form-control" }}
+            </div>
+            <div class="mb-3">
+                <label for="{{ form.fono.id_for_label }}" class="form-label">{{ form.fono.label }}:</label>
+                {{ form.fono|add_class:"form-control" }}
+            </div>
+            <div class="mb-3">
+                <label for="{{ form.domicilio.id_for_label }}" class="form-label">{{ form.domicilio.label }}:</label>
+                {{ form.domicilio|add_class:"form-control" }}
+            </div>
+            <div class="mb-3">
+                <label for="{{ form.fecha_ingreso.id_for_label }}" class="form-label">{{ form.fecha_ingreso.label }}:</label>
+                {{ form.fecha_ingreso|add_class:"form-control" }}
+            </div>
+        </div>
 
         <div class="d-grid">
             <button type="submit" class="btn btn-primary">Guardar</button>
@@ -34,36 +70,49 @@
     </div>
 </div>
 
-<!-- Script para actualizar camas según unidad -->
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const unidadSelect = document.getElementById('id_unidad');
         const camaSelect = document.getElementById('id_cama');
         const rutInput = document.getElementById('id_rut');
         const fichaInput = document.getElementById('id_ficha');
+        const buscarBtn = document.getElementById('buscar-btn');
+        const resto = document.getElementById('resto-campos');
+        const restFields = resto.querySelectorAll('input, select, textarea');
 
-        function buscarPaciente() {
+        function habilitarCampos() {
+            resto.style.display = 'block';
+            restFields.forEach(f => f.disabled = false);
+        }
+
+        buscarBtn.addEventListener('click', function () {
             const params = new URLSearchParams();
             if (rutInput.value) params.append('rut', rutInput.value);
             if (fichaInput.value) params.append('ficha', fichaInput.value);
-            if (!params.toString()) return;
+
+            if (!params.toString()) {
+                habilitarCampos();
+                return;
+            }
 
             fetch(`/pacientes/api/buscar-paciente/?${params.toString()}`)
                 .then(resp => resp.json())
                 .then(data => {
                     if (data.existe) {
-                        document.getElementById('id_nombre').value = data.nombre || '';
-                        document.getElementById('id_rut').value = data.rut || '';
-                        document.getElementById('id_fecha_nacimiento').value = data.fecha_nacimiento || '';
-                        document.getElementById('id_fono').value = data.fono || '';
-                        document.getElementById('id_domicilio').value = data.domicilio || '';
-                        document.getElementById('id_diagnostico').value = data.diagnostico || '';
+                        if (data.tiene_episodios) {
+                            if (confirm('Se encontraron episodios previos para este paciente. ¿Deseas rellenar los datos?')) {
+                                document.getElementById('id_nombre').value = data.nombre || '';
+                                document.getElementById('id_rut').value = data.rut || '';
+                                document.getElementById('id_fecha_nacimiento').value = data.fecha_nacimiento || '';
+                                document.getElementById('id_fono').value = data.fono || '';
+                                document.getElementById('id_domicilio').value = data.domicilio || '';
+                                document.getElementById('id_diagnostico').value = data.diagnostico || '';
+                            }
+                        }
                     }
+                    habilitarCampos();
                 });
-        }
-
-        if (rutInput) rutInput.addEventListener('blur', buscarPaciente);
-        if (fichaInput) fichaInput.addEventListener('blur', buscarPaciente);
+        });
 
         if (unidadSelect && camaSelect) {
             unidadSelect.addEventListener('change', function () {
