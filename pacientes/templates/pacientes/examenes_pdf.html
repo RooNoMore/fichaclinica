@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Solicitud de Exámenes</title>
+    <style>
+        body { font-family: Arial, sans-serif; font-size: 12pt; margin: 30px; }
+        h1 { text-align: center; font-size: 14pt; margin-bottom: 20px; }
+        ul { list-style: disc; margin-left: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Solicitud de Exámenes</h1>
+
+    <p><strong>Nombre:</strong> {{ paciente.nombre }}</p>
+    <p><strong>RUT:</strong> {{ paciente.rut }}</p>
+    <p><strong>Ficha:</strong> {{ paciente.ficha }}</p>
+    <p><strong>Categoría:</strong> {{ categoria|title }}</p>
+    <p><strong>Indicaciones:</strong> {{ indicaciones|default:"-" }}</p>
+
+    <h2>Exámenes solicitados</h2>
+    <ul>
+        {% for ex in examenes %}
+        <li>{{ ex }}</li>
+        {% endfor %}
+    </ul>
+
+    <p style="margin-top:40px;">______________________________________</p>
+    <p>Médico solicitante</p>
+</body>
+</html>

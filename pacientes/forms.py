@@ -88,7 +88,7 @@ class InterconsultaForm(forms.ModelForm):
         model = Interconsulta
         fields = ['servicio_destino', 'motivo']
 
-class SolicitudExamenForm(forms.ModelForm):
+class SolicitudExamenForm(forms.Form):
     IMAGENES = [
         'Radiografía de tórax',
         'Ecografía abdominal',
@@ -113,11 +113,12 @@ class SolicitudExamenForm(forms.ModelForm):
         choices=[('imagen', 'Imagenología'), ('laboratorio', 'Laboratorio')],
         label='Sección'
     )
-    tipo_examen = forms.ChoiceField(choices=[], label='Examen')
-
-    class Meta:
-        model = SolicitudExamen
-        fields = ['categoria', 'tipo_examen', 'indicaciones']
+    tipo_examen = forms.MultipleChoiceField(
+        choices=[], label='Exámenes'
+    )
+    indicaciones = forms.CharField(
+        widget=forms.Textarea, required=False, label='Indicaciones'
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
