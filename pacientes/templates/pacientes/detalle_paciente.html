@@ -86,10 +86,10 @@
         {% csrf_token %}
         <input type="hidden" name="accion" value="guardar_evolucion">
 
-        <div class="mb-2 d-flex align-items-center gap-2">
-          <select id="plantillas-evolucion" class="form-select form-select-sm"></select>
-          <button type="button" class="btn btn-secondary btn-sm" onclick="aplicarPlantilla('evolucion')">Usar</button>
-          <button type="button" class="btn btn-outline-secondary btn-sm" onclick="guardarPlantilla('evolucion', document.getElementById('id_contenido').value)">Guardar actual</button>
+        <div class="mb-2">
+          <button type="button" class="btn btn-link p-0" onclick="openPlantillaModal('evolucion','id_contenido')" title="Plantillas">
+            <i class="bi bi-card-text fs-5"></i>
+          </button>
         </div>
 
         <div class="mb-3">
@@ -100,10 +100,10 @@
         <div class="mb-3">
           {{ form.plan_indicaciones.label_tag }}
           {{ form.plan_indicaciones }}
-          <div class="mt-1 d-flex align-items-center gap-2">
-            <select id="plantillas-plan" class="form-select form-select-sm"></select>
-            <button type="button" class="btn btn-secondary btn-sm" onclick="aplicarPlantilla('plan')">Usar</button>
-            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="guardarPlantilla('plan', document.getElementById('id_plan_indicaciones').value)">Guardar actual</button>
+          <div class="mt-1">
+            <button type="button" class="btn btn-link p-0" onclick="openPlantillaModal('plan','id_plan_indicaciones')" title="Plantillas">
+              <i class="bi bi-card-text fs-5"></i>
+            </button>
           </div>
         </div>
 
@@ -350,55 +350,55 @@
                         <div class="mb-2">
                             {{ indicacion_form.reposo.label_tag }}
                             {{ indicacion_form.reposo }}
-                            <div class="mt-1 d-flex gap-2">
-                                <select data-field="reposo" class="form-select form-select-sm plantilla-select"></select>
-                                <button type="button" class="btn btn-secondary btn-sm" onclick="aplicarPlantillaCampo('reposo')">Usar</button>
-                                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="guardarPlantillaCampo('reposo')">Guardar</button>
+                            <div class="mt-1">
+                                <button type="button" class="btn btn-link p-0" onclick="openPlantillaModal('indicacion_reposo','id_reposo')" title="Plantillas">
+                                    <i class="bi bi-card-text fs-5"></i>
+                                </button>
                             </div>
                         </div>
                         <div class="mb-2">
                             {{ indicacion_form.regimen.label_tag }}
                             {{ indicacion_form.regimen }}
-                            <div class="mt-1 d-flex gap-2">
-                                <select data-field="regimen" class="form-select form-select-sm plantilla-select"></select>
-                                <button type="button" class="btn btn-secondary btn-sm" onclick="aplicarPlantillaCampo('regimen')">Usar</button>
-                                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="guardarPlantillaCampo('regimen')">Guardar</button>
+                            <div class="mt-1">
+                                <button type="button" class="btn btn-link p-0" onclick="openPlantillaModal('indicacion_regimen','id_regimen')" title="Plantillas">
+                                    <i class="bi bi-card-text fs-5"></i>
+                                </button>
                             </div>
                         </div>
                         <div class="mb-2">
                             {{ indicacion_form.medicamentos.label_tag }}
                             {{ indicacion_form.medicamentos }}
-                            <div class="mt-1 d-flex gap-2">
-                                <select data-field="medicamentos" class="form-select form-select-sm plantilla-select"></select>
-                                <button type="button" class="btn btn-secondary btn-sm" onclick="aplicarPlantillaCampo('medicamentos')">Usar</button>
-                                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="guardarPlantillaCampo('medicamentos')">Guardar</button>
+                            <div class="mt-1">
+                                <button type="button" class="btn btn-link p-0" onclick="openPlantillaModal('indicacion_medicamentos','id_medicamentos')" title="Plantillas">
+                                    <i class="bi bi-card-text fs-5"></i>
+                                </button>
                             </div>
                         </div>
                         <div class="mb-2">
                             {{ indicacion_form.infusiones.label_tag }}
                             {{ indicacion_form.infusiones }}
-                            <div class="mt-1 d-flex gap-2">
-                                <select data-field="infusiones" class="form-select form-select-sm plantilla-select"></select>
-                                <button type="button" class="btn btn-secondary btn-sm" onclick="aplicarPlantillaCampo('infusiones')">Usar</button>
-                                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="guardarPlantillaCampo('infusiones')">Guardar</button>
+                            <div class="mt-1">
+                                <button type="button" class="btn btn-link p-0" onclick="openPlantillaModal('indicacion_infusiones','id_infusiones')" title="Plantillas">
+                                    <i class="bi bi-card-text fs-5"></i>
+                                </button>
                             </div>
                         </div>
                         <div class="mb-2">
                             {{ indicacion_form.dispositivos.label_tag }}
                             {{ indicacion_form.dispositivos }}
-                            <div class="mt-1 d-flex gap-2">
-                                <select data-field="dispositivos" class="form-select form-select-sm plantilla-select"></select>
-                                <button type="button" class="btn btn-secondary btn-sm" onclick="aplicarPlantillaCampo('dispositivos')">Usar</button>
-                                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="guardarPlantillaCampo('dispositivos')">Guardar</button>
+                            <div class="mt-1">
+                                <button type="button" class="btn btn-link p-0" onclick="openPlantillaModal('indicacion_dispositivos','id_dispositivos')" title="Plantillas">
+                                    <i class="bi bi-card-text fs-5"></i>
+                                </button>
                             </div>
                         </div>
                         <div class="mb-3">
                             {{ indicacion_form.otras.label_tag }}
                             {{ indicacion_form.otras }}
-                            <div class="mt-1 d-flex gap-2">
-                                <select data-field="otras" class="form-select form-select-sm plantilla-select"></select>
-                                <button type="button" class="btn btn-secondary btn-sm" onclick="aplicarPlantillaCampo('otras')">Usar</button>
-                                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="guardarPlantillaCampo('otras')">Guardar</button>
+                            <div class="mt-1">
+                                <button type="button" class="btn btn-link p-0" onclick="openPlantillaModal('indicacion_otras','id_otras')" title="Plantillas">
+                                    <i class="bi bi-card-text fs-5"></i>
+                                </button>
                             </div>
                         </div>
                         <button type="submit" class="btn btn-primary">Guardar</button>
@@ -711,58 +711,16 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function(){
-    const plantillaEndpoint = '{% url "obtener_plantillas" %}';
-    const guardarEndpoint = '{% url "guardar_plantilla" %}';
-
-    function cargarSelect(tipo, select){
-        fetch(`${plantillaEndpoint}?tipo=${tipo}`)
-          .then(r=>r.json()).then(data=>{
-            select.innerHTML='';
-            data.plantillas.forEach(p=>{
-                const opt=document.createElement('option');
-                opt.value=p.contenido;
-                opt.textContent=p.titulo||p.contenido.substring(0,30);
-                select.appendChild(opt);
+    window.copiarUltimaIndicacion = function(){
+        fetch('{% url "ultima_indicacion" paciente.id %}')
+            .then(r => r.json())
+            .then(data => {
+                for(const k in data){
+                    const f = document.getElementById('id_'+k);
+                    if(f) f.value = data[k];
+                }
             });
-          });
-    }
-
-    function aplicarPlantilla(tipo){
-        const sel=document.getElementById(`plantillas-${tipo}`);
-        if(!sel) return;
-        if(tipo==='evolucion') document.getElementById('id_contenido').value=sel.value;
-        if(tipo==='plan') document.getElementById('id_plan_indicaciones').value=sel.value;
-        if(tipo==='indicacion_general') document.getElementById('id_indicaciones_generales').value=sel.value;
-    }
-
-    function guardarPlantilla(tipo, contenido){
-        fetch(guardarEndpoint,{method:'POST',headers:{'X-CSRFToken':'{{ csrf_token }}','Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({tipo,contenido})}).then(()=>cargarSelect(tipo,document.getElementById(`plantillas-${tipo}`)));
-    }
-
-    document.querySelectorAll('#plantillas-evolucion,#plantillas-plan,#plantillas-indicaciones-gen').forEach(sel=>{cargarSelect(sel.id.replace('plantillas-',''),sel);});
-
-    function cargarSelectCampo(campo){
-        const sel=document.querySelector(`select[data-field="${campo}"]`); if(sel) cargarSelect(`indicacion_${campo}`, sel);
-    }
-
-    function aplicarPlantillaCampo(campo){
-        const sel=document.querySelector(`select[data-field="${campo}"]`); if(sel) document.getElementById(`id_${campo}`).value=sel.value;
-    }
-
-    function guardarPlantillaCampo(campo){
-        const valor=document.getElementById(`id_${campo}`).value;
-        fetch(guardarEndpoint,{method:'POST',headers:{'X-CSRFToken':'{{ csrf_token }}','Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({tipo:`indicacion_${campo}`,contenido:valor})}).then(()=>cargarSelectCampo(campo));
-    }
-
-    ['reposo','regimen','medicamentos','infusiones','dispositivos','otras'].forEach(c=>cargarSelectCampo(c));
-
-    window.copiarUltimaIndicacion=function(){
-        fetch('{% url "ultima_indicacion" paciente.id %}').then(r=>r.json()).then(data=>{for(const k in data){const f=document.getElementById('id_'+k);if(f) f.value=data[k];}});
     };
-    window.aplicarPlantilla=aplicarPlantilla;
-    window.guardarPlantilla=guardarPlantilla;
-    window.aplicarPlantillaCampo=aplicarPlantillaCampo;
-    window.guardarPlantillaCampo=guardarPlantillaCampo;
 });
 </script>
 
