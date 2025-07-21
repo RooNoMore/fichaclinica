@@ -193,6 +193,37 @@ class AntecedentesPacienteForm(forms.Form):
 from .models import Epicrisis
 
 class EpicrisisForm(forms.ModelForm):
+    EXAM_CHOICES = [(False, 'No'), (True, 'Sí')]
+    MEJORADO_CHOICES = [(True, 'Mejorado'), (False, 'No')]
+
+    examenes_pendientes = forms.TypedChoiceField(
+        choices=EXAM_CHOICES,
+        coerce=lambda x: x == 'True',
+        widget=forms.RadioSelect,
+        label='Exámenes pendientes'
+    )
+    detalle_examenes_pendientes = forms.CharField(
+        required=False,
+        widget=forms.Textarea(attrs={'rows': 1}),
+        label='Detalle exámenes pendientes'
+    )
+    examenes_realizados = forms.TypedChoiceField(
+        choices=EXAM_CHOICES,
+        coerce=lambda x: x == 'True',
+        widget=forms.RadioSelect,
+        label='Exámenes realizados'
+    )
+    detalle_examenes_realizados = forms.CharField(
+        required=False,
+        widget=forms.Textarea(attrs={'rows': 1}),
+        label='Detalle exámenes realizados'
+    )
+    condicion_mejorado = forms.TypedChoiceField(
+        choices=MEJORADO_CHOICES,
+        coerce=lambda x: x == 'True',
+        widget=forms.RadioSelect,
+        label='Condición al alta'
+    )
     class Meta:
         model = Epicrisis
         fields = [
@@ -200,6 +231,11 @@ class EpicrisisForm(forms.ModelForm):
             'comentario_evolucion',
             'indicaciones_generales',
             'indicaciones_controles',
+            'examenes_pendientes',
+            'detalle_examenes_pendientes',
+            'examenes_realizados',
+            'detalle_examenes_realizados',
+            'condicion_mejorado',
         ]
         widgets = {
             'diagnostico_egreso': forms.Textarea(attrs={'rows': 1}),

@@ -26,6 +26,26 @@
         {{ form.indicaciones_controles.label_tag }}
         {{ form.indicaciones_controles }}
     </div>
+    <div class="mb-2">
+        {{ form.examenes_pendientes.label_tag }}
+        {{ form.examenes_pendientes }}
+    </div>
+    <div class="mb-2">
+        {{ form.detalle_examenes_pendientes.label_tag }}
+        {{ form.detalle_examenes_pendientes }}
+    </div>
+    <div class="mb-2">
+        {{ form.examenes_realizados.label_tag }}
+        {{ form.examenes_realizados }}
+    </div>
+    <div class="mb-2">
+        {{ form.detalle_examenes_realizados.label_tag }}
+        {{ form.detalle_examenes_realizados }}
+    </div>
+    <div class="mb-2">
+        {{ form.condicion_mejorado.label_tag }}
+        {{ form.condicion_mejorado }}
+    </div>
 
     <button type="submit" name="accion" value="borrador" class="btn btn-secondary">Guardar cambios</button>
     <button type="submit" name="accion" value="finalizar" class="btn btn-primary">Finalizar y generar PDF</button>

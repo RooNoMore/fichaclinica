@@ -221,6 +221,12 @@ def detalle_paciente(request, paciente_id):
         epicrisis_existente = Epicrisis.objects.filter(
             episodio=episodio_activo
         ).first()
+    if not epicrisis_existente:
+        epicrisis_existente = (
+            Epicrisis.objects.filter(episodio__paciente=paciente, finalizado=False)
+            .order_by('-fecha_creacion')
+            .first()
+        )
     epicrisis_form = EpicrisisForm() if not epicrisis_existente else None
     indicaciones = episodio_activo.indicaciones.all().order_by('-fecha') if episodio_activo else []
     signos_vitales = episodio_activo.signos_vitales.all().order_by('-fecha') if episodio_activo else []
@@ -603,6 +609,11 @@ def exportar_epicrisis_pdf(request, epicrisis_id):
         'indicacionesControles': epicrisis.indicaciones_controles,
         'medicamentos': epicrisis.episodio.medicamentos.all(),
         'peso': getattr(epicrisis, 'peso', ''),
+        'condicion_alta': 'Mejorado' if epicrisis.condicion_mejorado else 'No',
+        'examenes_pendientes': 'Sí' if epicrisis.examenes_pendientes else 'No',
+        'detalle_examenes_pendientes': epicrisis.detalle_examenes_pendientes,
+        'examenes_realizados': 'Sí' if epicrisis.examenes_realizados else 'No',
+        'detalle_examenes_realizados': epicrisis.detalle_examenes_realizados,
     }
 
     html_string = render_to_string('pacientes/epicrisis_template.html', context)
@@ -646,6 +657,11 @@ def ver_epicrisis(request, epicrisis_id):
         'indicacionesControles': epicrisis.indicaciones_controles,
         'medicamentos': epicrisis.episodio.medicamentos.all(),
         'peso': getattr(epicrisis, 'peso', ''),
+        'condicion_alta': 'Mejorado' if epicrisis.condicion_mejorado else 'No',
+        'examenes_pendientes': 'Sí' if epicrisis.examenes_pendientes else 'No',
+        'detalle_examenes_pendientes': epicrisis.detalle_examenes_pendientes,
+        'examenes_realizados': 'Sí' if epicrisis.examenes_realizados else 'No',
+        'detalle_examenes_realizados': epicrisis.detalle_examenes_realizados,
     }
 
     return render(request, 'pacientes/epicrisis_template.html', context)
@@ -678,10 +694,8 @@ def dar_de_alta_paciente(request, paciente_id):
 @login_required
 def perfil_usuario(request):
     perfil = request.user.perfilusuario
-    borradores = Epicrisis.objects.filter(autor=request.user, finalizado=False)
     return render(request, 'pacientes/perfil_usuario.html', {
         'perfil': perfil,
-        'borradores': borradores,
     })
 
 

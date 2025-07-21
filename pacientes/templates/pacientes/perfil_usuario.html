@@ -6,18 +6,17 @@
 <p><strong>Servicio:</strong> {{ perfil.servicio }}</p>
 <p><strong>Teléfono:</strong> {{ perfil.telefono }}</p>
 
-<h3>Borradores de Epicrisis</h3>
-{% if borradores %}
-    <ul>
-    {% for e in borradores %}
-        <li>
-            {{ e.paciente.nombre }} - {{ e.fecha_creacion|date:"d/m/Y" }}
-            <a href="{% url 'editar_epicrisis' e.id %}">Editar</a>
-        </li>
-    {% endfor %}
-    </ul>
-{% else %}
-    <p>No tiene borradores pendientes.</p>
-{% endif %}
+<h3>Plantillas</h3>
+<textarea id="plantilla_temp_field" class="d-none"></textarea>
+<p>
+    <button type="button" class="btn btn-link p-0" onclick="openPlantillaModal('evolucion','plantilla_temp_field')" title="Plantillas de evolución">
+        <i class="bi bi-card-text fs-5"></i> Evoluciones
+    </button>
+</p>
+<p>
+    <button type="button" class="btn btn-link p-0" onclick="openPlantillaModal('indicacion','plantilla_temp_field')" title="Plantillas de indicación">
+        <i class="bi bi-card-text fs-5"></i> Indicaciones
+    </button>
+</p>
 {% endblock %}
 
