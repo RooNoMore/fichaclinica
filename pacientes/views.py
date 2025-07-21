@@ -47,6 +47,7 @@ from .models import (
     PlantillaTexto,
     SignoVital,
     EvaluacionEnfermeria,
+    SolicitudExamen,
 )
 
 @login_required
@@ -315,11 +316,31 @@ def solicitar_examenes(request, paciente_id):
     if request.method == 'POST':
         form = SolicitudExamenForm(request.POST)
         if form.is_valid():
-            examen = form.save(commit=False)
-            examen.paciente = paciente
-            examen.solicitante = request.user.perfilusuario
-            examen.save()
-            return redirect('detalle_paciente', paciente_id=paciente_id)
+            categoria = form.cleaned_data['categoria']
+            tipos = form.cleaned_data['tipo_examen']
+            indicaciones = form.cleaned_data['indicaciones']
+            for t in tipos:
+                SolicitudExamen.objects.create(
+                    paciente=paciente,
+                    solicitante=request.user.perfilusuario,
+                    categoria=categoria,
+                    tipo_examen=t,
+                    indicaciones=indicaciones,
+                )
+
+            context = {
+                'paciente': paciente,
+                'examenes': tipos,
+                'categoria': categoria,
+                'indicaciones': indicaciones,
+            }
+            html_string = render_to_string(
+                'pacientes/examenes_pdf.html', context
+            )
+            pdf = HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf()
+            response = HttpResponse(pdf, content_type='application/pdf')
+            response['Content-Disposition'] = f'attachment; filename=examenes_{paciente.id}.pdf'
+            return response
     else:
         form = SolicitudExamenForm()
 
