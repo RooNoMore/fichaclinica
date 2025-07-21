@@ -527,10 +527,10 @@ def crear_epicrisis(request, paciente_id):
         if form.is_valid():
             epicrisis = form.save(commit=False)
             epicrisis.episodio = episodio
-            epicrisis.autor = request.user
             finalizar = request.POST.get('accion') == 'finalizar'
             if finalizar:
                 epicrisis.finalizado = True
+                epicrisis.autor = request.user
             epicrisis.save()
             messages.success(request, "Epicrisis creada correctamente.")
             if finalizar:
@@ -554,9 +554,12 @@ def editar_epicrisis(request, epicrisis_id):
     if request.method == 'POST':
         form = EpicrisisForm(request.POST, instance=epicrisis)
         if form.is_valid():
-            epicrisis = form.save()
-            if request.POST.get('accion') == 'finalizar':
+            epicrisis = form.save(commit=False)
+            finalizar = request.POST.get('accion') == 'finalizar'
+            if finalizar:
                 epicrisis.finalizado = True
+                if epicrisis.autor is None:
+                    epicrisis.autor = request.user
                 episodio = epicrisis.episodio
                 episodio.fecha_egreso = timezone.now()
                 episodio.finalizado = True
@@ -566,6 +569,7 @@ def editar_epicrisis(request, epicrisis_id):
                 epicrisis.paciente.save()
                 epicrisis.save()
                 return redirect('exportar_epicrisis_pdf', epicrisis_id=epicrisis.id)
+            epicrisis.save()
             return redirect('detalle_paciente', paciente_id=epicrisis.paciente.id)
     else:
         form = EpicrisisForm(instance=epicrisis)
