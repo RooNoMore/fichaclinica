@@ -50,3 +50,12 @@ li:hover {
     text-decoration: none;
     border-radius: 8px;
 }
+
+.section-nav {
+    max-width: 180px;
+}
+
+#miTab .nav-link {
+    border-radius: 0;
+    margin-bottom: 4px;
+}

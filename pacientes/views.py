@@ -411,10 +411,13 @@ def crear_epicrisis(request, paciente_id):
             epicrisis = form.save(commit=False)
             epicrisis.episodio = episodio
             epicrisis.autor = request.user
-            if request.POST.get('accion') == 'finalizar':
+            finalizar = request.POST.get('accion') == 'finalizar'
+            if finalizar:
                 epicrisis.finalizado = True
             epicrisis.save()
             messages.success(request, "Epicrisis creada correctamente.")
+            if finalizar:
+                return redirect('exportar_epicrisis_pdf', epicrisis_id=epicrisis.id)
             return redirect('detalle_paciente', paciente_id)
     else:
         form = EpicrisisForm()

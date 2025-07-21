@@ -251,12 +251,26 @@ class SignoVitalForm(forms.ModelForm):
             'saturacion',
         ]
         widgets = {
-            'fecha': forms.DateTimeInput(attrs={'type': 'datetime-local', 'class': 'form-control'}),
-            'temperatura': forms.NumberInput(attrs={'step': '0.1', 'class': 'form-control'}),
-            'presion_arterial': forms.TextInput(attrs={'class': 'form-control'}),
-            'frecuencia_cardiaca': forms.NumberInput(attrs={'class': 'form-control'}),
-            'frecuencia_respiratoria': forms.NumberInput(attrs={'class': 'form-control'}),
-            'saturacion': forms.NumberInput(attrs={'class': 'form-control'}),
+            'fecha': forms.DateTimeInput(attrs={
+                'type': 'datetime-local',
+                'class': 'form-control form-control-sm'
+            }),
+            'temperatura': forms.NumberInput(attrs={
+                'step': '0.1',
+                'class': 'form-control form-control-sm'
+            }),
+            'presion_arterial': forms.TextInput(attrs={
+                'class': 'form-control form-control-sm'
+            }),
+            'frecuencia_cardiaca': forms.NumberInput(attrs={
+                'class': 'form-control form-control-sm'
+            }),
+            'frecuencia_respiratoria': forms.NumberInput(attrs={
+                'class': 'form-control form-control-sm'
+            }),
+            'saturacion': forms.NumberInput(attrs={
+                'class': 'form-control form-control-sm'
+            }),
         }
 
 

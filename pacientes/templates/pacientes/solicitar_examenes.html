@@ -1,16 +1,29 @@
-<h3>Solicitar Exámenes para {{ paciente.nombre }}</h3>
-<form method="POST" id="form-examen">
-    {% csrf_token %}
-    {{ form.categoria.label_tag }}
-    {{ form.categoria }}
-    <br>
-    {{ form.tipo_examen.label_tag }}
-    {{ form.tipo_examen }}
-    <br>
-    {{ form.indicaciones.label_tag }}
-    {{ form.indicaciones }}
-    <button type="submit" class="btn btn-primary mt-2">Solicitar Examen</button>
-</form>
+{% extends 'base.html' %}
+
+{% block content %}
+<h3 class="mb-3">Solicitar Exámenes para {{ paciente.nombre }}</h3>
+<div class="card shadow-sm">
+    <div class="card-body">
+        <form method="POST" id="form-examen" class="row g-3">
+            {% csrf_token %}
+            <div class="col-md-4">
+                {{ form.categoria.label_tag }}
+                {{ form.categoria }}
+            </div>
+            <div class="col-md-4">
+                {{ form.tipo_examen.label_tag }}
+                {{ form.tipo_examen }}
+            </div>
+            <div class="col-12">
+                {{ form.indicaciones.label_tag }}
+                {{ form.indicaciones }}
+            </div>
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary">Solicitar Examen</button>
+            </div>
+        </form>
+    </div>
+</div>
 
 {{ IMAGENES|json_script:"imagenes-data" }}
 {{ LABORATORIO|json_script:"laboratorio-data" }}
@@ -36,3 +49,5 @@
   categoriaSelect.addEventListener('change', cargarOpciones);
   document.addEventListener('DOMContentLoaded', cargarOpciones);
 </script>
+
+{% endblock %}
