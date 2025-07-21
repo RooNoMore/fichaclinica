@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h3 class="mb-3">Nueva Solicitud para {{ paciente.nombre }}</h3>
+<div class="card shadow-sm">
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">Guardar y generar PDF</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -81,7 +81,14 @@ class EvolucionForm(forms.ModelForm):
             }),
         }
 
-from .models import Interconsulta, SolicitudExamen, Receta, SignoVital, EvaluacionEnfermeria
+from .models import (
+    Interconsulta,
+    SolicitudExamen,
+    Receta,
+    SignoVital,
+    EvaluacionEnfermeria,
+    Solicitud,
+)
 
 class InterconsultaForm(forms.ModelForm):
     class Meta:
@@ -288,5 +295,15 @@ class EvaluacionEnfermeriaForm(forms.ModelForm):
         widgets = {
             'fecha': forms.DateTimeInput(attrs={'type': 'datetime-local', 'class': 'form-control'}),
             'contenido': forms.Textarea(attrs={'rows': 3, 'class': 'form-control'}),
+        }
+
+
+class SolicitudForm(forms.ModelForm):
+    class Meta:
+        model = Solicitud
+        fields = ['tipo', 'detalle']
+        widgets = {
+            'tipo': forms.Select(attrs={'class': 'form-select'}),
+            'detalle': forms.Textarea(attrs={'rows': 3, 'class': 'form-control'}),
         }
 
