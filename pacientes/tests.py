@@ -114,3 +114,39 @@ class DetalleEpisodioTests(TestCase):
         self.assertContains(response, "nota")
 
 
+class EpicrisisAutorTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username="med", password="pw")
+        self.client.login(username="med", password="pw")
+        self.paciente = Paciente.objects.create(nombre="Aut")
+        self.episodio = Episodio.objects.create(paciente=self.paciente)
+
+    def _post_data(self, accion):
+        url = reverse('crear_epicrisis', args=[self.paciente.id])
+        data = {
+            'diagnostico_egreso': 'dg',
+            'comentario_evolucion': 'c',
+            'indicaciones_generales': '',
+            'indicaciones_controles': '',
+            'examenes_pendientes': 'False',
+            'detalle_examenes_pendientes': '',
+            'examenes_realizados': 'False',
+            'detalle_examenes_realizados': '',
+            'condicion_mejorado': 'True',
+            'accion': accion,
+        }
+        self.client.post(url, data)
+
+    def test_borrador_sin_autor(self):
+        self._post_data('guardar')
+        epicrisis = Epicrisis.objects.get(episodio=self.episodio)
+        self.assertIsNone(epicrisis.autor)
+        self.assertFalse(epicrisis.finalizado)
+
+    def test_finalizar_asigna_autor(self):
+        self._post_data('finalizar')
+        epicrisis = Epicrisis.objects.get(episodio=self.episodio)
+        self.assertEqual(epicrisis.autor, self.user)
+        self.assertTrue(epicrisis.finalizado)
+
+
