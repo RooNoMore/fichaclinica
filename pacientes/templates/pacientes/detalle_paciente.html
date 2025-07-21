@@ -737,4 +737,23 @@ document.addEventListener('DOMContentLoaded', function(){
 });
 </script>
 
+<script>
+// Mantener pestaña activa tras recargar la página
+document.addEventListener('DOMContentLoaded', function () {
+    const tabLinks = document.querySelectorAll('#miTab a[data-bs-toggle="tab"]');
+    if (!tabLinks.length) return;
+    const storageKey = 'activeTab-' + window.location.pathname;
+    const storedTab = localStorage.getItem(storageKey);
+    if (storedTab) {
+        const someTab = document.querySelector(`#miTab a[href="${storedTab}"]`);
+        if (someTab) new bootstrap.Tab(someTab).show();
+    }
+    tabLinks.forEach(link => {
+        link.addEventListener('shown.bs.tab', e => {
+            localStorage.setItem(storageKey, e.target.getAttribute('href'));
+        });
+    });
+});
+</script>
+
 {% endblock %}
