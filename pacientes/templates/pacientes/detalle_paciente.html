@@ -195,12 +195,18 @@
         <div class="tab-pane fade" id="examenes">
             <p><a href="{% url 'solicitar_examenes' paciente.id %}" class="btn btn-primary mb-3">Solicitar Exámenes</a></p>
             {% if paciente.solicitudes_examenes.all %}
-                {% for examen in paciente.solicitudes_examenes.all %}
+                {% for solicitud in paciente.solicitudes_examenes.all %}
                     <div class="card mb-2">
                         <div class="card-body">
-                            <p><strong>Tipo:</strong> {{ examen.tipo_examen }}</p>
-                            <p><strong>Indicaciones:</strong> {{ examen.indicaciones|default:"Sin indicaciones" }}</p>
-                            <p><strong>Fecha:</strong> {{ examen.fecha_solicitud|date:"d/m/Y H:i" }}</p>
+                            <p><strong>Categoría:</strong> {{ solicitud.categoria|title }}</p>
+                            <p><strong>Indicaciones:</strong> {{ solicitud.indicaciones|default:"Sin indicaciones" }}</p>
+                            <p><strong>Fecha:</strong> {{ solicitud.fecha_solicitud|date:"d/m/Y H:i" }}</p>
+                            <ul>
+                                {% for ex in solicitud.examenes.splitlines %}
+                                    <li>{{ ex }}</li>
+                                {% endfor %}
+                            </ul>
+                            <a href="{% url 'imprimir_solicitud_examen' solicitud.id %}" class="btn btn-sm btn-secondary">Imprimir</a>
                         </div>
                     </div>
                 {% endfor %}
