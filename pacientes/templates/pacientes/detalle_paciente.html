@@ -37,7 +37,7 @@
 {% endif %}
 
 <div class="row">
-  <div class="col-md-3 mb-3">
+  <div class="col-md-2 mb-3 section-nav">
     <ul class="nav nav-pills flex-column" id="miTab" role="tablist">
         <li class="nav-item">
             <a class="nav-link active" id="evoluciones-tab" data-bs-toggle="tab" href="#evoluciones">Todas las Evoluciones</a>
@@ -407,8 +407,35 @@
                     <form method="post" id="form-signos">
                         {% csrf_token %}
                         <input type="hidden" name="accion" value="guardar_signos">
-                        {{ signos_form.as_p }}
-                        <button type="submit" class="btn btn-primary btn-sm">Guardar</button>
+                        <div class="row g-2 align-items-end">
+                            <div class="col-md-4">
+                                {{ signos_form.fecha.label_tag }}
+                                {{ signos_form.fecha }}
+                            </div>
+                            <div class="col-md-2">
+                                {{ signos_form.temperatura.label_tag }}
+                                {{ signos_form.temperatura }}
+                            </div>
+                            <div class="col-md-2">
+                                {{ signos_form.presion_arterial.label_tag }}
+                                {{ signos_form.presion_arterial }}
+                            </div>
+                            <div class="col-md-2">
+                                {{ signos_form.frecuencia_cardiaca.label_tag }}
+                                {{ signos_form.frecuencia_cardiaca }}
+                            </div>
+                            <div class="col-md-2">
+                                {{ signos_form.frecuencia_respiratoria.label_tag }}
+                                {{ signos_form.frecuencia_respiratoria }}
+                            </div>
+                            <div class="col-md-2">
+                                {{ signos_form.saturacion.label_tag }}
+                                {{ signos_form.saturacion }}
+                            </div>
+                            <div class="col-md-2">
+                                <button type="submit" class="btn btn-primary btn-sm w-100">Guardar</button>
+                            </div>
+                        </div>
                     </form>
                 </div>
             </div>
