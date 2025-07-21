@@ -197,7 +197,11 @@
 
         <!-- Exámenes -->
         <div class="tab-pane fade" id="examenes">
-            <p><a href="{% url 'solicitar_examenes' paciente.id %}" class="btn btn-primary mb-3">Solicitar Exámenes</a></p>
+            <p>
+                <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#modalExamenes">
+                    Solicitar Exámenes
+                </button>
+            </p>
             {% if paciente.solicitudes_examenes.all %}
                 {% for solicitud in paciente.solicitudes_examenes.all %}
                     <div class="card mb-2">
@@ -722,6 +726,69 @@ document.addEventListener('DOMContentLoaded', function(){
             });
     };
 });
+</script>
+
+<!-- Modal Solicitud Exámenes -->
+<div class="modal fade" id="modalExamenes" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Solicitar Exámenes</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <form method="POST" action="{% url 'solicitar_examenes' paciente.id %}" target="_blank" id="form-examen-modal" class="row g-3">
+            {% csrf_token %}
+            <div class="col-md-4">
+                {{ examen_form.categoria.label_tag }}
+                {{ examen_form.categoria }}
+            </div>
+            <div class="col-md-8" id="modal-examenes-wrapper">
+                {{ examen_form.tipo_examen.label_tag }}
+                {{ examen_form.tipo_examen }}
+            </div>
+            <div class="col-12">
+                {{ examen_form.indicaciones.label_tag }}
+                {{ examen_form.indicaciones }}
+            </div>
+            <div class="col-12 text-end">
+                <button type="submit" class="btn btn-primary">Solicitar y generar PDF</button>
+            </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+{{ IMAGENES|json_script:"imagenes-data" }}
+{{ LABORATORIO|json_script:"laboratorio-data" }}
+<script>
+  const opcionesExamen = {
+    'imagen': JSON.parse(document.getElementById('imagenes-data').textContent),
+    'laboratorio': JSON.parse(document.getElementById('laboratorio-data').textContent)
+  };
+  const categoriaSelectModal = document.getElementById('id_categoria');
+  const examenWrapper = document.getElementById('modal-examenes-wrapper');
+  function cargarOpcionesModal() {
+    const cat = categoriaSelectModal.value;
+    examenWrapper.innerHTML = '';
+    opcionesExamen[cat].forEach((opt, idx) => {
+      const li = document.createElement('li');
+      const label = document.createElement('label');
+      const input = document.createElement('input');
+      input.type = 'checkbox';
+      input.name = 'tipo_examen';
+      input.value = opt;
+      input.id = `id_tipo_examen_${idx}`;
+      label.htmlFor = input.id;
+      label.appendChild(input);
+      label.append(` ${opt}`);
+      li.appendChild(label);
+      examenWrapper.appendChild(li);
+    });
+  }
+  document.addEventListener('DOMContentLoaded', cargarOpcionesModal);
+  categoriaSelectModal.addEventListener('change', cargarOpcionesModal);
 </script>
 
 <script>

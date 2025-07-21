@@ -225,6 +225,7 @@ def detalle_paciente(request, paciente_id):
     indicaciones = episodio_activo.indicaciones.all().order_by('-fecha') if episodio_activo else []
     signos_vitales = episodio_activo.signos_vitales.all().order_by('-fecha') if episodio_activo else []
     evaluaciones = episodio_activo.evaluaciones_enfermeria.all().order_by('-fecha') if episodio_activo else []
+    examen_form = SolicitudExamenForm()
 
     context = {
         'paciente': paciente,
@@ -244,6 +245,9 @@ def detalle_paciente(request, paciente_id):
         'epicrisis_form': epicrisis_form,
         'epicrisis_existente': epicrisis_existente,
         'episodios_previos': episodios_previos,
+        'examen_form': examen_form,
+        'IMAGENES': SolicitudExamenForm.IMAGENES,
+        'LABORATORIO': SolicitudExamenForm.LABORATORIO,
     }
     return render(request, 'pacientes/detalle_paciente.html', context)
 
@@ -669,6 +673,16 @@ def dar_de_alta_paciente(request, paciente_id):
 
     messages.error(request, 'Método no permitido.')
     return redirect('detalle_paciente', paciente_id=paciente.id)
+
+
+@login_required
+def perfil_usuario(request):
+    perfil = request.user.perfilusuario
+    borradores = Epicrisis.objects.filter(autor=request.user, finalizado=False)
+    return render(request, 'pacientes/perfil_usuario.html', {
+        'perfil': perfil,
+        'borradores': borradores,
+    })
 
 
 @login_required
