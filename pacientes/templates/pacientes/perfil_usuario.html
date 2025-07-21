@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Mi Perfil</h2>
+<p><strong>Nombre:</strong> {{ perfil.first_name }} {{ perfil.last_name }}</p>
+<p><strong>Cargo:</strong> {{ perfil.cargo }}</p>
+<p><strong>Servicio:</strong> {{ perfil.servicio }}</p>
+<p><strong>Teléfono:</strong> {{ perfil.telefono }}</p>
+
+<h3>Borradores de Epicrisis</h3>
+{% if borradores %}
+    <ul>
+    {% for e in borradores %}
+        <li>
+            {{ e.paciente.nombre }} - {{ e.fecha_creacion|date:"d/m/Y" }}
+            <a href="{% url 'editar_epicrisis' e.id %}">Editar</a>
+        </li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No tiene borradores pendientes.</p>
+{% endif %}
+{% endblock %}
+

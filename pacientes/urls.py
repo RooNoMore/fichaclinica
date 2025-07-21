@@ -37,4 +37,5 @@ urlpatterns = [
     path('api/plantillas/', views.obtener_plantillas, name='obtener_plantillas'),
     path('api/plantillas/guardar/', views.guardar_plantilla, name='guardar_plantilla'),
     path('api/pacientes/<int:paciente_id>/ultima-indicacion/', views.ultima_indicacion, name='ultima_indicacion'),
+    path('perfil/', views.perfil_usuario, name='perfil_usuario'),
 ]
