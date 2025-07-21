@@ -118,7 +118,9 @@ class SolicitudExamenForm(forms.Form):
         label='Sección'
     )
     tipo_examen = forms.MultipleChoiceField(
-        choices=[], label='Exámenes'
+        choices=[],
+        label='Exámenes',
+        widget=forms.CheckboxSelectMultiple,
     )
     indicaciones = forms.CharField(
         widget=forms.Textarea, required=False, label='Indicaciones'
