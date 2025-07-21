@@ -15,6 +15,8 @@ urlpatterns = [
         views.imprimir_solicitud_examen,
         name='imprimir_solicitud_examen',
     ),
+    path('pacientes/<int:paciente_id>/solicitudes/nueva/', views.crear_solicitud, name='crear_solicitud'),
+    path('solicitudes/<int:solicitud_id>/pdf/', views.imprimir_solicitud, name='imprimir_solicitud'),
     path('pacientes/<int:paciente_id>/receta/', views.crear_receta, name='crear_receta'),
     path('pacientes/<int:paciente_id>/epicrisis/nueva/', views.crear_epicrisis, name='crear_epicrisis'),
     path('episodios/<int:episodio_id>/', views.detalle_episodio, name='detalle_episodio'),

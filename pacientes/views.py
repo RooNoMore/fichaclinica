@@ -31,6 +31,7 @@ from .forms import (
     IndicacionForm,
     SignoVitalForm,
     EvaluacionEnfermeriaForm,
+    SolicitudForm,
 )
 from .models import (
     Cama,
@@ -48,6 +49,7 @@ from .models import (
     SignoVital,
     EvaluacionEnfermeria,
     SolicitudExamen,
+    Solicitud,
 )
 
 @login_required
@@ -388,6 +390,51 @@ def imprimir_solicitud_examen(request, solicitud_id):
     response[
         "Content-Disposition"
     ] = f"attachment; filename=examenes_{solicitud.paciente.id}_{solicitud.id}.pdf"
+    return response
+
+
+@login_required
+def crear_solicitud(request, paciente_id):
+    paciente = get_object_or_404(Paciente, id=paciente_id)
+    if request.method == "POST":
+        form = SolicitudForm(request.POST)
+        if form.is_valid():
+            solicitud = form.save(commit=False)
+            solicitud.paciente = paciente
+            solicitud.solicitante = request.user.perfilusuario
+            solicitud.save()
+
+            context = {"paciente": paciente, "solicitud": solicitud}
+            html_string = render_to_string(
+                "pacientes/solicitud_pdf.html", context
+            )
+            pdf = HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf()
+
+            response = HttpResponse(pdf, content_type="application/pdf")
+            response[
+                "Content-Disposition"
+            ] = f"attachment; filename=solicitud_{solicitud.id}.pdf"
+            return response
+    else:
+        form = SolicitudForm()
+
+    return render(
+        request, "pacientes/crear_solicitud.html", {"form": form, "paciente": paciente}
+    )
+
+
+@login_required
+def imprimir_solicitud(request, solicitud_id):
+    solicitud = get_object_or_404(Solicitud, id=solicitud_id)
+    context = {"paciente": solicitud.paciente, "solicitud": solicitud}
+    html_string = render_to_string(
+        "pacientes/solicitud_pdf.html", context
+    )
+    pdf = HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf()
+    response = HttpResponse(pdf, content_type="application/pdf")
+    response[
+        "Content-Disposition"
+    ] = f"attachment; filename=solicitud_{solicitud.id}.pdf"
     return response
 
 @login_required

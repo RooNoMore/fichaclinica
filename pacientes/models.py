@@ -182,6 +182,30 @@ class SolicitudExamen(models.Model):
         return [e for e in self.examenes.splitlines() if e]
 
 
+class Solicitud(models.Model):
+    TIPO_CHOICES = [
+        ("pabellon", "Solicitud de Pabellón"),
+        ("transfusion", "Solicitud de Transfusión"),
+        ("traslado", "Solicitud de Traslado"),
+        ("certificado", "Certificado Médico"),
+    ]
+
+    paciente = models.ForeignKey(
+        "Paciente", on_delete=models.CASCADE, related_name="solicitudes"
+    )
+    solicitante = models.ForeignKey(
+        PerfilUsuario,
+        on_delete=models.PROTECT,
+        related_name="solicitudes_generadas",
+    )
+    tipo = models.CharField(max_length=20, choices=TIPO_CHOICES)
+    detalle = models.TextField(blank=True)
+    fecha_solicitud = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.get_tipo_display()} - {self.paciente.nombre}"
+
+
 class Receta(models.Model):
     paciente = models.ForeignKey('Paciente', on_delete=models.CASCADE, related_name='recetas')
     medico = models.ForeignKey(PerfilUsuario, on_delete=models.PROTECT, related_name='recetas_emitidas')

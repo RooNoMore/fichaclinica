@@ -52,6 +52,9 @@
             <a class="nav-link" id="examenes-tab" data-bs-toggle="tab" href="#examenes">Exámenes</a>
         </li>
         <li class="nav-item">
+            <a class="nav-link" id="solicitudes-tab" data-bs-toggle="tab" href="#solicitudes">Solicitudes</a>
+        </li>
+        <li class="nav-item">
             <a class="nav-link" id="receta-tab" data-bs-toggle="tab" href="#receta">Recetas</a>
         </li>
         <li class="nav-item">
@@ -213,6 +216,25 @@
                 {% endfor %}
             {% else %}
                 <p>No hay exámenes solicitados.</p>
+            {% endif %}
+        </div>
+
+        <!-- Solicitudes -->
+        <div class="tab-pane fade" id="solicitudes">
+            <p><a href="{% url 'crear_solicitud' paciente.id %}" class="btn btn-primary mb-3">Nueva Solicitud</a></p>
+            {% if paciente.solicitudes.all %}
+                {% for sol in paciente.solicitudes.all %}
+                    <div class="card mb-2">
+                        <div class="card-body">
+                            <p><strong>Tipo:</strong> {{ sol.get_tipo_display }}</p>
+                            <p><strong>Detalle:</strong> {{ sol.detalle|default:"-" }}</p>
+                            <p><strong>Fecha:</strong> {{ sol.fecha_solicitud|date:"d/m/Y H:i" }}</p>
+                            <a href="{% url 'imprimir_solicitud' sol.id %}" class="btn btn-sm btn-secondary">Imprimir</a>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>No hay solicitudes registradas.</p>
             {% endif %}
         </div>
 
