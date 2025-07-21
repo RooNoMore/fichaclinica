@@ -29,6 +29,8 @@ from .forms import (
     AntecedenteForm,
     AntecedentesPacienteForm,
     IndicacionForm,
+    SignoVitalForm,
+    EvaluacionEnfermeriaForm,
 )
 from .models import (
     Cama,
@@ -43,6 +45,8 @@ from .models import (
     Antecedente,
     Indicacion,
     PlantillaTexto,
+    SignoVital,
+    EvaluacionEnfermeria,
 )
 
 @login_required
@@ -124,6 +128,8 @@ def detalle_paciente(request, paciente_id):
     formset = MedicamentoFormSet(request.POST or None, instance=episodio_activo) if episodio_activo else None
     antecedentes_form = AntecedentesPacienteForm()
     indicacion_form = IndicacionForm()
+    signos_form = SignoVitalForm()
+    evaluacion_form = EvaluacionEnfermeriaForm()
     antecedentes = paciente.antecedentes.all()
     antecedentes_por_tipo = [
         {
@@ -168,6 +174,28 @@ def detalle_paciente(request, paciente_id):
                 return redirect('detalle_paciente', paciente_id=paciente.id)
             else:
                 messages.error(request, "Error al guardar indicaciones.")
+        elif accion == 'guardar_signos' and episodio_activo:
+            signos_form = SignoVitalForm(request.POST)
+            if signos_form.is_valid():
+                sv = signos_form.save(commit=False)
+                sv.episodio = episodio_activo
+                sv.responsable = request.user.perfilusuario
+                sv.save()
+                messages.success(request, 'Signos vitales guardados correctamente.')
+                return redirect('detalle_paciente', paciente_id=paciente.id)
+            else:
+                messages.error(request, 'Error al guardar signos vitales.')
+        elif accion == 'guardar_evaluacion_enfermeria' and episodio_activo:
+            evaluacion_form = EvaluacionEnfermeriaForm(request.POST)
+            if evaluacion_form.is_valid():
+                ev = evaluacion_form.save(commit=False)
+                ev.episodio = episodio_activo
+                ev.responsable = request.user.perfilusuario
+                ev.save()
+                messages.success(request, 'Evaluación guardada correctamente.')
+                return redirect('detalle_paciente', paciente_id=paciente.id)
+            else:
+                messages.error(request, 'Error al guardar evaluación.')
         elif accion == 'guardar_antecedente':
             antecedentes_form = AntecedentesPacienteForm(request.POST)
             if antecedentes_form.is_valid():
@@ -192,6 +220,8 @@ def detalle_paciente(request, paciente_id):
         ).first()
     epicrisis_form = EpicrisisForm() if not epicrisis_existente else None
     indicaciones = episodio_activo.indicaciones.all().order_by('-fecha') if episodio_activo else []
+    signos_vitales = episodio_activo.signos_vitales.all().order_by('-fecha') if episodio_activo else []
+    evaluaciones = episodio_activo.evaluaciones_enfermeria.all().order_by('-fecha') if episodio_activo else []
 
     context = {
         'paciente': paciente,
@@ -204,6 +234,10 @@ def detalle_paciente(request, paciente_id):
         'antecedentes_por_tipo': antecedentes_por_tipo,
         'indicacion_form': indicacion_form,
         'indicaciones': indicaciones,
+        'signos_form': signos_form,
+        'evaluacion_form': evaluacion_form,
+        'signos_vitales': signos_vitales,
+        'evaluaciones': evaluaciones,
         'epicrisis_form': epicrisis_form,
         'epicrisis_existente': epicrisis_existente,
         'episodios_previos': episodios_previos,
@@ -289,7 +323,12 @@ def solicitar_examenes(request, paciente_id):
     else:
         form = SolicitudExamenForm()
 
-    return render(request, 'pacientes/solicitar_examenes.html', {'form': form, 'paciente': paciente})
+    return render(request, 'pacientes/solicitar_examenes.html', {
+        'form': form,
+        'paciente': paciente,
+        'IMAGENES': SolicitudExamenForm.IMAGENES,
+        'LABORATORIO': SolicitudExamenForm.LABORATORIO,
+    })
 
 @login_required
 def crear_receta(request, paciente_id):

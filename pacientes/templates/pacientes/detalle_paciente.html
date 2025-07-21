@@ -58,6 +58,9 @@
             <a class="nav-link" id="indicaciones-tab" data-bs-toggle="tab" href="#indicaciones">Indicaciones</a>
         </li>
         <li class="nav-item">
+            <a class="nav-link" id="enfermeria-tab" data-bs-toggle="tab" href="#enfermeria">Enfermería</a>
+        </li>
+        <li class="nav-item">
             <a class="nav-link" id="epicrisis-tab" data-bs-toggle="tab" href="#epicrisis">Epicrisis</a>
         </li>
         <li class="nav-item">
@@ -392,6 +395,81 @@
             {% else %}
                 <p class="text-muted">No hay indicaciones registradas.</p>
             {% endif %}
+        </div>
+
+        <!-- Enfermería -->
+        <div class="tab-pane fade" id="enfermeria">
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header">
+                    <h5 class="mb-0">Registrar Signos Vitales</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" id="form-signos">
+                        {% csrf_token %}
+                        <input type="hidden" name="accion" value="guardar_signos">
+                        {{ signos_form.as_p }}
+                        <button type="submit" class="btn btn-primary btn-sm">Guardar</button>
+                    </form>
+                </div>
+            </div>
+
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>Hora</th>
+                        <th>T°</th>
+                        <th>PA</th>
+                        <th>FC</th>
+                        <th>FR</th>
+                        <th>SatO₂</th>
+                        <th>Responsable</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sv in signos_vitales %}
+                        <tr>
+                            <td>{{ sv.fecha|date:"d/m H:i" }}</td>
+                            <td>{{ sv.temperatura }}</td>
+                            <td>{{ sv.presion_arterial }}</td>
+                            <td>{{ sv.frecuencia_cardiaca }}</td>
+                            <td>{{ sv.frecuencia_respiratoria }}</td>
+                            <td>{{ sv.saturacion }}</td>
+                            <td>{{ sv.responsable }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center">Sin registros</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <hr>
+
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header">
+                    <h5 class="mb-0">Evaluación de Enfermería</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" id="form-evaluacion">
+                        {% csrf_token %}
+                        <input type="hidden" name="accion" value="guardar_evaluacion_enfermeria">
+                        {{ evaluacion_form.as_p }}
+                        <button type="submit" class="btn btn-primary btn-sm">Guardar</button>
+                    </form>
+                </div>
+            </div>
+
+            {% for ev in evaluaciones %}
+                <div class="card mb-2">
+                    <div class="card-body">
+                        <small class="text-muted">{{ ev.fecha|date:"d/m/Y H:i" }} - {{ ev.responsable }}</small>
+                        <p class="mb-0">{{ ev.contenido|linebreaks }}</p>
+                    </div>
+                </div>
+            {% empty %}
+                <p class="text-muted">Sin evaluaciones registradas.</p>
+            {% endfor %}
         </div>
 
         <!-- Epicrisis -->

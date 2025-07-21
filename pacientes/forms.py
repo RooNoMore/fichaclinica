@@ -81,7 +81,7 @@ class EvolucionForm(forms.ModelForm):
             }),
         }
 
-from .models import Interconsulta, SolicitudExamen, Receta
+from .models import Interconsulta, SolicitudExamen, Receta, SignoVital, EvaluacionEnfermeria
 
 class InterconsultaForm(forms.ModelForm):
     class Meta:
@@ -89,9 +89,44 @@ class InterconsultaForm(forms.ModelForm):
         fields = ['servicio_destino', 'motivo']
 
 class SolicitudExamenForm(forms.ModelForm):
+    IMAGENES = [
+        'Radiografía de tórax',
+        'Ecografía abdominal',
+        'Tomografía computada de abdomen',
+        'Resonancia magnética cerebral',
+        'Radiografía de extremidad',
+    ]
+
+    LABORATORIO = [
+        'Hemograma',
+        'Perfil bioquímico',
+        'Perfil lipídico',
+        'Función renal',
+        'Gases arteriales',
+        'Urocultivo',
+        'Orina completa',
+        'Pruebas de coagulación',
+        'Glicemia',
+        'Creatinina',
+    ]
+    categoria = forms.ChoiceField(
+        choices=[('imagen', 'Imagenología'), ('laboratorio', 'Laboratorio')],
+        label='Sección'
+    )
+    tipo_examen = forms.ChoiceField(choices=[], label='Examen')
+
     class Meta:
         model = SolicitudExamen
-        fields = ['tipo_examen', 'indicaciones']
+        fields = ['categoria', 'tipo_examen', 'indicaciones']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        categoria = self.data.get('categoria') or self.initial.get('categoria')
+        if categoria == 'imagen':
+            opciones = self.IMAGENES
+        else:
+            opciones = self.LABORATORIO
+        self.fields['tipo_examen'].choices = [(o, o) for o in opciones]
 
 class RecetaForm(forms.ModelForm):
     class Meta:
@@ -201,5 +236,36 @@ class IndicacionForm(forms.ModelForm):
             'infusiones': forms.Textarea(attrs={'rows': 1, 'class': 'form-control'}),
             'dispositivos': forms.Textarea(attrs={'rows': 1, 'class': 'form-control'}),
             'otras': forms.Textarea(attrs={'rows': 2, 'class': 'form-control'}),
+        }
+
+
+class SignoVitalForm(forms.ModelForm):
+    class Meta:
+        model = SignoVital
+        fields = [
+            'fecha',
+            'temperatura',
+            'presion_arterial',
+            'frecuencia_cardiaca',
+            'frecuencia_respiratoria',
+            'saturacion',
+        ]
+        widgets = {
+            'fecha': forms.DateTimeInput(attrs={'type': 'datetime-local', 'class': 'form-control'}),
+            'temperatura': forms.NumberInput(attrs={'step': '0.1', 'class': 'form-control'}),
+            'presion_arterial': forms.TextInput(attrs={'class': 'form-control'}),
+            'frecuencia_cardiaca': forms.NumberInput(attrs={'class': 'form-control'}),
+            'frecuencia_respiratoria': forms.NumberInput(attrs={'class': 'form-control'}),
+            'saturacion': forms.NumberInput(attrs={'class': 'form-control'}),
+        }
+
+
+class EvaluacionEnfermeriaForm(forms.ModelForm):
+    class Meta:
+        model = EvaluacionEnfermeria
+        fields = ['fecha', 'contenido']
+        widgets = {
+            'fecha': forms.DateTimeInput(attrs={'type': 'datetime-local', 'class': 'form-control'}),
+            'contenido': forms.Textarea(attrs={'rows': 3, 'class': 'form-control'}),
         }
 
