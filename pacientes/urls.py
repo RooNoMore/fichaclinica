@@ -10,6 +10,11 @@ urlpatterns = [
     path('pacientes/<int:paciente_id>/exportar_pdf/', views.exportar_pdf, name='exportar_pdf'),
     path('pacientes/<int:paciente_id>/interconsulta/', views.crear_interconsulta, name='crear_interconsulta'),
     path('pacientes/<int:paciente_id>/examenes/', views.solicitar_examenes, name='solicitar_examenes'),
+    path(
+        'solicitudes-examen/<int:solicitud_id>/imprimir/',
+        views.imprimir_solicitud_examen,
+        name='imprimir_solicitud_examen',
+    ),
     path('pacientes/<int:paciente_id>/receta/', views.crear_receta, name='crear_receta'),
     path('pacientes/<int:paciente_id>/epicrisis/nueva/', views.crear_epicrisis, name='crear_epicrisis'),
     path('episodios/<int:episodio_id>/', views.detalle_episodio, name='detalle_episodio'),

@@ -316,17 +316,17 @@ def solicitar_examenes(request, paciente_id):
     if request.method == 'POST':
         form = SolicitudExamenForm(request.POST)
         if form.is_valid():
-            categoria = form.cleaned_data['categoria']
-            tipos = form.cleaned_data['tipo_examen']
-            indicaciones = form.cleaned_data['indicaciones']
-            for t in tipos:
-                SolicitudExamen.objects.create(
-                    paciente=paciente,
-                    solicitante=request.user.perfilusuario,
-                    categoria=categoria,
-                    tipo_examen=t,
-                    indicaciones=indicaciones,
-                )
+            categoria = form.cleaned_data["categoria"]
+            tipos = form.cleaned_data["tipo_examen"]
+            indicaciones = form.cleaned_data["indicaciones"]
+
+            SolicitudExamen.objects.create(
+                paciente=paciente,
+                solicitante=request.user.perfilusuario,
+                categoria=categoria,
+                examenes="\n".join(tipos),
+                indicaciones=indicaciones,
+            )
 
             context = {
                 'paciente': paciente,
@@ -350,6 +350,28 @@ def solicitar_examenes(request, paciente_id):
         'IMAGENES': SolicitudExamenForm.IMAGENES,
         'LABORATORIO': SolicitudExamenForm.LABORATORIO,
     })
+
+
+@login_required
+def imprimir_solicitud_examen(request, solicitud_id):
+    solicitud = get_object_or_404(SolicitudExamen, id=solicitud_id)
+    examenes = solicitud.lista_examenes()
+    context = {
+        "paciente": solicitud.paciente,
+        "examenes": examenes,
+        "categoria": solicitud.categoria,
+        "indicaciones": solicitud.indicaciones,
+    }
+    html_string = render_to_string(
+        "pacientes/examenes_pdf.html",
+        context,
+    )
+    pdf = HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf()
+    response = HttpResponse(pdf, content_type="application/pdf")
+    response[
+        "Content-Disposition"
+    ] = f"attachment; filename=examenes_{solicitud.paciente.id}_{solicitud.id}.pdf"
+    return response
 
 @login_required
 def crear_receta(request, paciente_id):

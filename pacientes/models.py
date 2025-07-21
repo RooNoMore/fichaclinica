@@ -154,15 +154,32 @@ class Interconsulta(models.Model):
 
 
 class SolicitudExamen(models.Model):
-    paciente = models.ForeignKey('Paciente', on_delete=models.CASCADE, related_name='solicitudes_examenes')
-    solicitante = models.ForeignKey(PerfilUsuario, on_delete=models.PROTECT, related_name='examenes_solicitados')
-    categoria = models.CharField(max_length=20, choices=[('imagen', 'Imagenología'), ('laboratorio', 'Laboratorio')], default='laboratorio')
-    tipo_examen = models.CharField(max_length=100)
+    paciente = models.ForeignKey(
+        "Paciente",
+        on_delete=models.CASCADE,
+        related_name="solicitudes_examenes",
+    )
+    solicitante = models.ForeignKey(
+        PerfilUsuario,
+        on_delete=models.PROTECT,
+        related_name="examenes_solicitados",
+    )
+    categoria = models.CharField(
+        max_length=20,
+        choices=[("imagen", "Imagenología"), ("laboratorio", "Laboratorio")],
+        default="laboratorio",
+    )
+    examenes = models.TextField()
     indicaciones = models.TextField(blank=True, null=True)
     fecha_solicitud = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.tipo_examen} solicitado por {self.solicitante} para {self.paciente}"
+        return (
+            f"{self.paciente} - {self.categoria} ({self.fecha_solicitud:%d/%m/%Y})"
+        )
+
+    def lista_examenes(self):
+        return [e for e in self.examenes.splitlines() if e]
 
 
 class Receta(models.Model):
