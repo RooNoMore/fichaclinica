@@ -156,6 +156,7 @@ class Interconsulta(models.Model):
 class SolicitudExamen(models.Model):
     paciente = models.ForeignKey('Paciente', on_delete=models.CASCADE, related_name='solicitudes_examenes')
     solicitante = models.ForeignKey(PerfilUsuario, on_delete=models.PROTECT, related_name='examenes_solicitados')
+    categoria = models.CharField(max_length=20, choices=[('imagen', 'Imagenología'), ('laboratorio', 'Laboratorio')], default='laboratorio')
     tipo_examen = models.CharField(max_length=100)
     indicaciones = models.TextField(blank=True, null=True)
     fecha_solicitud = models.DateTimeField(auto_now_add=True)
@@ -272,3 +273,29 @@ class PlantillaTexto(models.Model):
     def __str__(self):
         titulo = self.titulo or "Sin título"
         return f"{self.usuario.username} - {self.get_tipo_display()} - {titulo}"
+
+
+class SignoVital(models.Model):
+    episodio = models.ForeignKey('Episodio', related_name='signos_vitales', on_delete=models.CASCADE)
+    fecha = models.DateTimeField(default=timezone.now)
+    responsable = models.ForeignKey(PerfilUsuario, on_delete=models.PROTECT, related_name='signos_vitales_registrados')
+    temperatura = models.DecimalField(max_digits=4, decimal_places=1, null=True, blank=True)
+    presion_arterial = models.CharField(max_length=20, blank=True)
+    frecuencia_cardiaca = models.IntegerField(null=True, blank=True)
+    frecuencia_respiratoria = models.IntegerField(null=True, blank=True)
+    saturacion = models.IntegerField(null=True, blank=True)
+
+    def __str__(self):
+        fecha_str = self.fecha.strftime('%d/%m/%Y %H:%M') if self.fecha else 'N/D'
+        return f"Signos {fecha_str} de {self.episodio.paciente}"
+
+
+class EvaluacionEnfermeria(models.Model):
+    episodio = models.ForeignKey('Episodio', related_name='evaluaciones_enfermeria', on_delete=models.CASCADE)
+    fecha = models.DateTimeField(default=timezone.now)
+    responsable = models.ForeignKey(PerfilUsuario, on_delete=models.PROTECT, related_name='evaluaciones_enfermeria')
+    contenido = models.TextField()
+
+    def __str__(self):
+        fecha_str = self.fecha.strftime('%d/%m/%Y %H:%M') if self.fecha else 'N/D'
+        return f"Evaluación {fecha_str} de {self.episodio.paciente}"

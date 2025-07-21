@@ -1,6 +1,38 @@
 <h3>Solicitar Exámenes para {{ paciente.nombre }}</h3>
-<form method="POST">
+<form method="POST" id="form-examen">
     {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Solicitar Examen</button>
+    {{ form.categoria.label_tag }}
+    {{ form.categoria }}
+    <br>
+    {{ form.tipo_examen.label_tag }}
+    {{ form.tipo_examen }}
+    <br>
+    {{ form.indicaciones.label_tag }}
+    {{ form.indicaciones }}
+    <button type="submit" class="btn btn-primary mt-2">Solicitar Examen</button>
 </form>
+
+{{ IMAGENES|json_script:"imagenes-data" }}
+{{ LABORATORIO|json_script:"laboratorio-data" }}
+<script>
+  const opciones = {
+    'imagen': JSON.parse(document.getElementById('imagenes-data').textContent),
+    'laboratorio': JSON.parse(document.getElementById('laboratorio-data').textContent)
+  };
+  const categoriaSelect = document.getElementById('id_categoria');
+  const examenSelect = document.getElementById('id_tipo_examen');
+
+  function cargarOpciones() {
+    const cat = categoriaSelect.value;
+    examenSelect.innerHTML = '';
+    opciones[cat].forEach(opt => {
+      const o = document.createElement('option');
+      o.value = opt;
+      o.textContent = opt;
+      examenSelect.appendChild(o);
+    });
+  }
+
+  categoriaSelect.addEventListener('change', cargarOpciones);
+  document.addEventListener('DOMContentLoaded', cargarOpciones);
+</script>
