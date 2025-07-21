@@ -35,6 +35,29 @@ class Paciente(models.Model):
             )
         return None
 
+    def edad_con_sufijo(self):
+        """Retorna la edad en años o meses con su sufijo correspondiente."""
+        from datetime import date
+
+        if not self.fecha_nacimiento:
+            return ""
+
+        today = date.today()
+
+        years = today.year - self.fecha_nacimiento.year - (
+            (today.month, today.day) < (self.fecha_nacimiento.month, self.fecha_nacimiento.day)
+        )
+        if years > 0:
+            sufijo = "año" if years == 1 else "años"
+            return f"{years} {sufijo}"
+
+        months = (today.year - self.fecha_nacimiento.year) * 12 + today.month - self.fecha_nacimiento.month
+        if today.day < self.fecha_nacimiento.day:
+            months -= 1
+
+        sufijo = "mes" if months == 1 else "meses"
+        return f"{months} {sufijo}"
+
     def __str__(self):
         return f'Ficha {self.ficha} - {self.nombre}'
     

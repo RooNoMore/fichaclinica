@@ -462,7 +462,6 @@ def crear_receta(request, paciente_id):
 
             context = {
                 "paciente": paciente,
-                "edad": paciente.edad(),
                 "dias_tratamiento": dias,
                 "medicamentos": medicamentos,
             }
