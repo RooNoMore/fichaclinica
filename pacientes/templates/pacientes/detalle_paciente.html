@@ -506,6 +506,7 @@
 
             <hr>
 
+            {% if user.perfilusuario.cargo == "Enfermería" %}
             <div class="card mb-4 shadow-sm">
                 <div class="card-header">
                     <h5 class="mb-0">Evaluación de Enfermería</h5>
@@ -519,6 +520,7 @@
                     </form>
                 </div>
             </div>
+            {% endif %}
 
             {% for ev in evaluaciones %}
                 <div class="card mb-2">
