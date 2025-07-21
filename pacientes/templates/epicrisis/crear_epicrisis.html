@@ -16,10 +16,10 @@
     <div class="mb-3">
       {{ form.indicaciones_generales.label_tag }}
       {{ form.indicaciones_generales }}
-      <div class="mt-1 d-flex gap-2">
-        <select id="plantillas-indicaciones-gen" class="form-select form-select-sm"></select>
-        <button type="button" class="btn btn-secondary btn-sm" onclick="aplicarPlantilla('indicacion_general')">Usar</button>
-        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="guardarPlantilla('indicacion_general', document.getElementById('id_indicaciones_generales').value)">Guardar actual</button>
+      <div class="mt-1">
+        <button type="button" class="btn btn-link p-0" onclick="openPlantillaModal('indicacion_general','id_indicaciones_generales')" title="Plantillas">
+          <i class="bi bi-card-text fs-5"></i>
+        </button>
       </div>
     </div>
     <div class="mb-2">
@@ -34,20 +34,4 @@
       Finalizar y Generar PDF
     </button>
   </form>
-<script>
-document.addEventListener('DOMContentLoaded',function(){
-    const endpoint='{% url "obtener_plantillas" %}';
-    const guardar='{% url "guardar_plantilla" %}';
-    function cargar(){
-        fetch(`${endpoint}?tipo=indicacion_general`).then(r=>r.json()).then(d=>{
-            const sel=document.getElementById('plantillas-indicaciones-gen');
-            sel.innerHTML='';
-            d.plantillas.forEach(p=>{const o=document.createElement('option');o.value=p.contenido;o.textContent=p.titulo||p.contenido.substring(0,30);sel.appendChild(o);});
-        });
-    }
-    cargar();
-    window.aplicarPlantilla=function(){const sel=document.getElementById('plantillas-indicaciones-gen');document.getElementById('id_indicaciones_generales').value=sel.value;};
-    window.guardarPlantilla=function(){const val=document.getElementById('id_indicaciones_generales').value;fetch(guardar,{method:'POST',headers:{'X-CSRFToken':'{{ csrf_token }}','Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({tipo:'indicacion_general',contenido:val})}).then(cargar);};
-});
-</script>
 {% endblock %}
