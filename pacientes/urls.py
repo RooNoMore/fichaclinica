@@ -22,6 +22,7 @@ urlpatterns = [
     path('epicrisis/<int:epicrisis_id>/ver/', views.ver_epicrisis, name='ver_epicrisis'),
     path('interconsultas/', views.interconsultas_recibidas, name='interconsultas_recibidas'),
     path('interconsultas/<int:interconsulta_id>/responder/', views.responder_interconsulta, name='responder_interconsulta'),
+    path('interconsultas/<int:interconsulta_id>/pdf/', views.interconsulta_pdf, name='interconsulta_pdf'),
     path('camas-disponibles/', views.camas_disponibles, name='camas_disponibles'),
     path('epicrisis/<int:epicrisis_id>/editar/', views.editar_epicrisis, name='editar_epicrisis'),
     path('pacientes/<int:paciente_id>/alta/', views.dar_de_alta_paciente, name='dar_de_alta_paciente'),

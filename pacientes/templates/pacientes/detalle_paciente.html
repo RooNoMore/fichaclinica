@@ -183,6 +183,7 @@
                                     <span class="badge bg-warning text-dark">Pendiente</span>
                                 {% endif %}
                             </p>
+                            <a href="{% url 'interconsulta_pdf' inter.id %}" class="btn btn-outline-secondary btn-sm">PDF</a>
                         </div>
                     </div>
                 {% endfor %}

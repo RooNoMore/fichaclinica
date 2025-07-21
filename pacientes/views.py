@@ -311,6 +311,23 @@ def responder_interconsulta(request, interconsulta_id):
 
 
 @login_required
+def interconsulta_pdf(request, interconsulta_id):
+    interconsulta = get_object_or_404(Interconsulta, id=interconsulta_id)
+    context = {
+        'interconsulta': interconsulta,
+    }
+
+    html_string = render_to_string('pacientes/interconsulta_pdf.html', context)
+    pdf = HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf()
+
+    response = HttpResponse(pdf, content_type='application/pdf')
+    response['Content-Disposition'] = (
+        f'attachment; filename=interconsulta_{interconsulta.id}.pdf'
+    )
+    return response
+
+
+@login_required
 def solicitar_examenes(request, paciente_id):
     paciente = get_object_or_404(Paciente, id=paciente_id)
     if request.method == 'POST':

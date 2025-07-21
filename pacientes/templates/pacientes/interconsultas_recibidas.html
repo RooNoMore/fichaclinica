@@ -25,6 +25,7 @@
             <p><strong>Solicitado por:</strong> {{ inter.solicitante }}</p>
             <p><strong>Fecha:</strong> {{ inter.fecha_solicitud|date:"d/m/Y H:i" }}</p>
             <a href="{% url 'responder_interconsulta' inter.id %}" class="btn btn-primary btn-sm">Responder</a>
+            <a href="{% url 'interconsulta_pdf' inter.id %}" class="btn btn-outline-secondary btn-sm ms-2">PDF</a>
           </div>
         </div>
       {% endfor %}
@@ -43,6 +44,7 @@
             <p><strong>Motivo:</strong> {{ inter.motivo }}</p>
             <p><strong>Respuesta:</strong> {{ inter.respuesta }}</p>
             <p><strong>Respondido el:</strong> {{ inter.fecha_respuesta|date:"d/m/Y H:i" }}</p>
+            <a href="{% url 'interconsulta_pdf' inter.id %}" class="btn btn-outline-secondary btn-sm">PDF</a>
           </div>
         </div>
       {% endfor %}
