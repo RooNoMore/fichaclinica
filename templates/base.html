@@ -48,6 +48,7 @@
                 {% if user.is_authenticated %}
                     <span>Bienvenido, <strong>{{ user.perfilusuario.first_name }}    - </strong></span>
                     <span>{{ user.perfilusuario.cargo }}</span>
+                    <a href="{% url 'perfil_usuario' %}" class="ms-2">Mi Perfil</a>
                     <form method="post" action="{% url 'logout' %}" style="display: inline;">
                         {% csrf_token %}
                         <button type="submit">Cerrar sesión</button>
