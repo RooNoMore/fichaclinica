@@ -87,6 +87,10 @@ class InterconsultaForm(forms.ModelForm):
     class Meta:
         model = Interconsulta
         fields = ['servicio_destino', 'motivo']
+        widgets = {
+            'servicio_destino': forms.Select(attrs={'class': 'form-select'}),
+            'motivo': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+        }
 
 class SolicitudExamenForm(forms.Form):
     IMAGENES = [

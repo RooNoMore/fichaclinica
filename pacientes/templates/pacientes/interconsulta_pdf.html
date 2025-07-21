@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Solicitud de Interconsulta</title>
+    <style>
+        body { font-family: Arial, sans-serif; font-size: 12pt; margin: 30px; }
+        h1 { text-align: center; font-size: 14pt; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Solicitud de Interconsulta</h1>
+
+    <p><strong>Paciente:</strong> {{ interconsulta.paciente.nombre }}</p>
+    <p><strong>Servicio destino:</strong> {{ interconsulta.servicio_destino }}</p>
+    <p><strong>Motivo:</strong> {{ interconsulta.motivo }}</p>
+    <p><strong>Fecha solicitud:</strong> {{ interconsulta.fecha_solicitud|date:"d/m/Y H:i" }}</p>
+    <p><strong>Solicitante:</strong> {{ interconsulta.solicitante }}</p>
+
+    {% if interconsulta.atendido %}
+    <p><strong>Respuesta:</strong> {{ interconsulta.respuesta }}</p>
+    <p><strong>Fecha respuesta:</strong> {{ interconsulta.fecha_respuesta|date:"d/m/Y H:i" }}</p>
+    {% endif %}
+
+    <p style="margin-top:40px;">______________________________________</p>
+    <p>Médico solicitante</p>
+</body>
+</html>
