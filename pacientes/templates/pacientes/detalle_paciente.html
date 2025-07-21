@@ -36,8 +36,9 @@
 <p><strong>Paciente dado de alta el {{ paciente.fecha_egreso|date:"d/m/Y H:i" }}</strong></p>
 {% endif %}
 
-<div>
-    <ul class="nav nav-tabs" id="miTab" role="tablist">
+<div class="row">
+  <div class="col-md-3 mb-3">
+    <ul class="nav nav-pills flex-column" id="miTab" role="tablist">
         <li class="nav-item">
             <a class="nav-link active" id="evoluciones-tab" data-bs-toggle="tab" href="#evoluciones">Todas las Evoluciones</a>
         </li>
@@ -63,7 +64,8 @@
             <a class="nav-link" id="hospitalizaciones-tab" data-bs-toggle="tab" href="#hospitalizaciones">Hospitalizaciones previas</a>
         </li>
     </ul>
-
+  </div>
+  <div class="col-md-9">
     <div class="tab-content mt-3" id="miTabContent">
 
         <!-- Evoluciones -->
