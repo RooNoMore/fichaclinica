@@ -52,4 +52,23 @@
   </div>
 
 </div>
+
+<script>
+// Mantener la pestaña activa tras recarga
+document.addEventListener('DOMContentLoaded', function () {
+    const tabLinks = document.querySelectorAll('#interconsultaTabs button[data-bs-toggle="tab"]');
+    if (!tabLinks.length) return;
+    const storageKey = 'activeTab-' + window.location.pathname;
+    const storedTab = localStorage.getItem(storageKey);
+    if (storedTab) {
+        const targetBtn = document.querySelector(`#interconsultaTabs button[data-bs-target="${storedTab}"]`);
+        if (targetBtn) new bootstrap.Tab(targetBtn).show();
+    }
+    tabLinks.forEach(btn => {
+        btn.addEventListener('shown.bs.tab', e => {
+            localStorage.setItem(storageKey, e.target.getAttribute('data-bs-target'));
+        });
+    });
+});
+</script>
 {% endblock %}
