@@ -32,6 +32,7 @@ from .forms import (
     SignoVitalForm,
     EvaluacionEnfermeriaForm,
     SolicitudForm,
+    PlantillaTextoForm,
 )
 from .models import (
     Cama,
@@ -697,8 +698,10 @@ def dar_de_alta_paciente(request, paciente_id):
 @login_required
 def perfil_usuario(request):
     perfil = request.user.perfilusuario
+    plantillas = PlantillaTexto.objects.filter(usuario=request.user)
     return render(request, 'pacientes/perfil_usuario.html', {
         'perfil': perfil,
+        'plantillas': plantillas,
     })
 
 
@@ -840,3 +843,26 @@ def guardar_plantilla(request):
         PlantillaTexto.objects.create(usuario=request.user, tipo=tipo, contenido=contenido, titulo=titulo)
         return JsonResponse({'success': True})
     return JsonResponse({'success': False}, status=400)
+
+
+@login_required
+def editar_plantilla(request, plantilla_id):
+    plantilla = get_object_or_404(PlantillaTexto, id=plantilla_id, usuario=request.user)
+    if request.method == 'POST':
+        form = PlantillaTextoForm(request.POST, instance=plantilla)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Plantilla modificada correctamente.')
+            return redirect('perfil_usuario')
+    else:
+        form = PlantillaTextoForm(instance=plantilla)
+    return render(request, 'pacientes/editar_plantilla.html', {'form': form})
+
+
+@login_required
+def eliminar_plantilla(request, plantilla_id):
+    plantilla = get_object_or_404(PlantillaTexto, id=plantilla_id, usuario=request.user)
+    if request.method == 'POST':
+        plantilla.delete()
+        messages.success(request, 'Plantilla eliminada correctamente.')
+    return redirect('perfil_usuario')

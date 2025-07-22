@@ -12,6 +12,7 @@ from .models import (
     Frecuencia,
     Antecedente,
     Indicacion,
+    PlantillaTexto,
 )
 
 from django import forms
@@ -341,5 +342,15 @@ class SolicitudForm(forms.ModelForm):
         widgets = {
             'tipo': forms.Select(attrs={'class': 'form-select'}),
             'detalle': forms.Textarea(attrs={'rows': 3, 'class': 'form-control'}),
+        }
+
+
+class PlantillaTextoForm(forms.ModelForm):
+    class Meta:
+        model = PlantillaTexto
+        fields = ['titulo', 'contenido']
+        widgets = {
+            'titulo': forms.TextInput(attrs={'class': 'form-control'}),
+            'contenido': forms.Textarea(attrs={'rows': 3, 'class': 'form-control'}),
         }
 

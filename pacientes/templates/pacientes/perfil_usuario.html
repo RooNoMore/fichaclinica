@@ -18,5 +18,34 @@
         <i class="bi bi-card-text fs-5"></i> Indicaciones
     </button>
 </p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Título</th>
+            <th>Tipo</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for p in plantillas %}
+        <tr>
+            <td>{{ p.titulo|default:"(sin título)" }}</td>
+            <td>{{ p.get_tipo_display }}</td>
+            <td>
+                <a href="{% url 'editar_plantilla' p.id %}" class="btn btn-sm btn-outline-secondary">Editar</a>
+                <form method="post" action="{% url 'eliminar_plantilla' p.id %}" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
+                </form>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="3" class="text-muted">No hay plantillas guardadas.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
 {% endblock %}
 
