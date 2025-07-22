@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Editar Plantilla</h2>
+<form method="post">
+    {% csrf_token %}
+    <div class="mb-2">
+        {{ form.titulo.label_tag }}
+        {{ form.titulo }}
+    </div>
+    <div class="mb-3">
+        {{ form.contenido.label_tag }}
+        {{ form.contenido }}
+    </div>
+    <button type="submit" class="btn btn-primary">Guardar cambios</button>
+    <a href="{% url 'perfil_usuario' %}" class="btn btn-secondary">Cancelar</a>
+</form>
+{% endblock %}
