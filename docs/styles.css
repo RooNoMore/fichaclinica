@@ -1,0 +1,28 @@
+body {
+  font-family: Arial, sans-serif;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+h1 {
+  text-align: center;
+}
+
+.controls {
+  margin-bottom: 1rem;
+}
+
+label {
+  margin-right: 0.5rem;
+}
+
+select {
+  margin-right: 1rem;
+}
+
+#result {
+  background: #f9f9f9;
+  border: 1px solid #ccc;
+  padding: 1rem;
+}
