@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Build Orders Protoss</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <h1>Administrador de Build Orders Protoss</h1>
+  <div class="controls">
+    <label for="matchup">Matchup:</label>
+    <select id="matchup">
+      <option value="">Seleccione</option>
+      <option value="PvP">PvP</option>
+      <option value="PvZ">PvZ</option>
+      <option value="PvT">PvT</option>
+    </select>
+
+    <label for="strategy">Estrategia del oponente:</label>
+    <select id="strategy" disabled>
+      <option value="">Seleccione un matchup primero</option>
+    </select>
+  </div>
+
+  <div id="result"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
